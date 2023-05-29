@@ -1,7 +1,7 @@
 from django.contrib import admin
 from django.urls import path,include
 admin.site.site_title = 'N-tech Solution'
-admin.site.site_header = 'N-tech Solution'
+admin.site.site_header = 'N-techs Solution'
 from django.conf import settings
 from django.conf.urls.static import static
 
