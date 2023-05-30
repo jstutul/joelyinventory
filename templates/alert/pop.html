@@ -1,0 +1,12 @@
+{% load static%}
+{% if messages %}
+    {% for message in messages %}
+    <script src="{% static 'assets/js/jquery.js'%}"></script>
+    <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
+    <script>
+        toastr.success("{{message}}");
+    </script>
+    <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
+
+    {% endfor %}
+{% endif %}

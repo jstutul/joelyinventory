@@ -5,5 +5,6 @@ urlpatterns = [
   path('',dashboard,name="dashboard"),
   path('users',userlist,name="userslist"),
   path('adduser',adduser,name="adduser"),
+  path('deleteuser',deleteuserdata,name="deleteuser"),
 ]
 
