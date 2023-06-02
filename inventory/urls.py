@@ -7,4 +7,3 @@ urlpatterns = [
   path('adduser',adduser,name="adduser"),
   path('deleteuser',deleteuserdata,name="deleteuser"),
 ]
-
