@@ -6,4 +6,13 @@ urlpatterns = [
   path('users',userlist,name="userslist"),
   path('adduser',adduser,name="adduser"),
   path('deleteuser',deleteuserdata,name="deleteuser"),
+  path('edituser/<int:id>',edituserdata,name="edituser"),
+  
+  ##product part start
+  path('products',viewproduct,name="products"),
+  path('product/add',addproductview,name="addproduct"),
+  path('product/edit/<int:id>', editproductview, name='editproduct'),
+  path('product/delete', deleteproductview, name='deleteproduct'),
+  
+  ##end
 ]

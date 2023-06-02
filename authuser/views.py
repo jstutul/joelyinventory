@@ -17,6 +17,15 @@ def authenticated_user(view_func) :
 def admin_required(view_func):
     @wraps(view_func)
     def wrapper(request, *args, **kwargs):
+        print(request.user.is_staff,request.user.is_superuser)
+        if not request.user.is_superuser:
+            return render(request,'authuser/accessdenied.html')
+        return view_func(request, *args, **kwargs)
+    return wrapper
+
+def staff_required(view_func):
+    @wraps(view_func)
+    def wrapper(request, *args, **kwargs):
         if not request.user.is_staff:
             return render(request,'authuser/accessdenied.html')
         return view_func(request, *args, **kwargs)

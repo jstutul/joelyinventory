@@ -59,27 +59,35 @@
                             </div> 
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="status">Status *</label>
-                                    <select name="type" id="status" name="status" class="form-control" data-style="py-0">
-                                        <option value="-1">Select</option>
-                                        <option value="1">Active</option>
-                                        <option value="0">Inactive</option>
-                                    </select>
+                                    <label for="status">Status *</label><br>
+                                    <label class="radio-inline mr-2">
+                                        <input type="radio" id="my_userstatus" name="my_userstatus" value="1" checked required > Active
+                                    </label>
+                                      
+                                    <label class="radio-inline">
+                                        <input type="radio" id="my_userstatus" name="my_userstatus" value="2" > Inactive
+                                    </label>
                                     <div class="invalid-feedback"></div>
                                 </div>
                             </div>
                             <div class="col-md-6">
                                 <div class="form-group">
-                                    <label for="usertype">User Type*</label>
-                                    <select name="type" id="usertype" name="usertype" class="form-control" data-style="py-0">
-                                        <option value="-1">Select</option>
-                                        <option value="1">Admin</option>
-                                        <option value="2" >Salesperson</option>
-                                    </select>
+                                    <label for="usertype">User Type*</label><br>
+                                    <label class="radio-inline mr-2">
+                                        <input type="radio" id="my_usertype" name="my_usertype" value="1" checked required>Admin
+                                    </label>
+                                    <label class="radio-inline mr-2">
+                                        <input type="radio" id="my_usertype" name="my_usertype" value="2"> Staf
+                                    </label>
+                                      
+                                    <label class="radio-inline">
+                                        <input type="radio" id="my_usertype" name="my_usertype" value="3"> Sales
+                                    </label>
                                     <div class="invalid-feedback"></div>
                                 </div>
-                            </div>                             
-                        </div>                            
+                            </div>                        
+                        </div>   
+                                    
                         <button type="submit" class="btn btn-primary mr-2">Add User</button>
                         <button type="reset" class="btn btn-danger">Reset</button>
                     </form>

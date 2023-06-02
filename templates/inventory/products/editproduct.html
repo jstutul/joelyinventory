@@ -1,0 +1,93 @@
+{% extends 'inventory/base/base.html'%}
+{% load static %}
+{% load custom_filters %}
+{% block main %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-8 mx-auto">
+            {% include 'alert/alert.html'%}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Update Product</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        {% comment %} {{ form.as_p }} {% endcomment %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.name.name }}">Product Name</label>
+                                    {{form.name}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.category }}">Category</label>
+                                    {{form.category}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.color }}">Color</label>
+                                    {{form.color}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.size }}">Size</label>
+                                    {{form.size}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.quantity }}">Quantity</label>
+                                    {{form.quantity}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.productioncost }}">Production Cost</label>
+                                    {{form.productioncost}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.transportcost }}">Transport Cost</label>
+                                    {{form.transportcost}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.additionalcost }}">Additional Cost</label>
+                                    {{form.additionalcost}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.image }}">Image</label>
+                                    {{form.image}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                        </div>                            
+                        <button type="submit" class="btn btn-primary mr-2">Update Product</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% endblock %}

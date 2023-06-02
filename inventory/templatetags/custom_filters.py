@@ -8,4 +8,10 @@ def active_status(value):
 
 @register.filter
 def user_type(value):
-    return "Admin" if value.is_staff else "Salesperson"
+    res="Sales"
+    if value.is_staff:
+        res="Staff"
+    if value.is_superuser and value.is_staff:
+        res="Admin" 
+                
+    return res
