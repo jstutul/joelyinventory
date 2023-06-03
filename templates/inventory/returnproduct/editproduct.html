@@ -1,0 +1,44 @@
+{% extends 'inventory/base/base.html'%}
+{% load static %}
+{% load custom_filters %}
+{% block main %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-8 mx-auto">
+            {% include 'alert/alert.html'%}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Edit Return Product</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="" method="post">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.name.name }}">Product Name</label>
+                                    {{form.product}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{form.quantity.name}}">Quantity</label>
+                                    {{form.quantity}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                        </div>       
+                        <input type="hidden" value="{{form.quantity.value}}" name="oldq" >                     
+                        <button type="submit" class="btn btn-primary mr-2">Edit Product</button>
+                        <button type="reset" class="btn btn-danger">Reset</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% endblock %}

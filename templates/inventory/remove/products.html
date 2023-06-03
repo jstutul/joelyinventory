@@ -47,8 +47,8 @@
                         <td>{{product.code}}</td>
                         <td>
                             <div class="d-flex align-items-center list-action">
-                                <a class="badge bg-success mr-2" href="{% url 'App_inventory:editproduct' product.id %}"><i class="ri-pencil-line mr-0"></i></a>
-                                <a class="badge bg-warning mr-2 userproduct" pid="{{product.id}}" data-toggle="modal" data-target="#deleteProductData" href="javascripts:void(0);" type="button"><i class="ri-delete-bin-line mr-0"></i></a>
+                                <a class="badge bg-success mr-2 backrestoreproduct" pid={{product.id}} data-toggle="modal" data-target="#restoreProductData" href="javascripts:void(0);" type="button"><i class="fa fa-check mr-0"></i></a>
+                                <a class="badge bg-warning mr-2 deleterestoreproduct" pid="{{product.id}}" data-toggle="modal" data-target="#deleteProductData" href="javascripts:void(0);" type="button"><i class="ri-delete-bin-line mr-0"></i></a>
                             </div>
                         </td>
                     </tr>
@@ -71,13 +71,35 @@
                     </button>
                 </div>
                 <div class="modal-body text-center">
-                    Are you really want to remove this product.?
+                    Are you really want to delete this product.?
                 </div>
-                <form method="post" action="{% url 'App_inventory:removeproduct' %}" class="text-center pb-4">
+                <form method="post" action="{% url 'App_inventory:deleteproduct' %}" class="text-center pb-4">
                     {% csrf_token %}
-                    <input type="hidden" id="productdeletemodal" name="id" value=""/>
+                    <input type="hidden" id="deleterestoreproductmodal" name="id" value=""/>
                     <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
-                    <button type="submit" class="btn btn-primary">Remove</button>
+                    <button type="submit" class="btn btn-primary">Delete</button>
+                </form>
+        </div>
+    </div>
+ </div>
+
+<div class="modal fade" id="restoreProductData" tabindex="-1" role="dialog" aria-labelledby="exampleModalCenterTitle" aria-hidden="true">
+    <div class="modal-dialog modal-dialog-centered" role="document">
+        <div class="modal-content">
+                <div class="modal-header">
+                    <h5 class="modal-title text-center" id="exampleModalCenterTitle">Restore product from list.</h5>
+                    <button type="button" class="close" data-dismiss="modal" aria-label="Close">
+                    <span aria-hidden="true">×</span>
+                    </button>
+                </div>
+                <div class="modal-body text-center">
+                    Are you really want to restore this product.?
+                </div>
+                <form method="post" action="{% url 'App_inventory:backrestoreproduct' %}" class="text-center pb-4">
+                    {% csrf_token %}
+                    <input type="hidden" id="backrestoreproductmodal" name="id" value=""/>
+                    <button type="button" class="btn btn-secondary" data-dismiss="modal">Close</button>
+                    <button type="submit" class="btn btn-primary">Restore</button>
                 </form>
         </div>
     </div>

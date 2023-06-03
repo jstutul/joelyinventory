@@ -12,7 +12,20 @@ urlpatterns = [
   path('products',viewproduct,name="products"),
   path('product/add',addproductview,name="addproduct"),
   path('product/edit/<int:id>', editproductview, name='editproduct'),
-  path('product/delete', deleteproductview, name='deleteproduct'),
-  
+  path('product/remove', deleteproductview, name='removeproduct'),
   ##end
+  
+  ##removed product part
+  path('remove/products',restoreviewproduct,name="restoreproducts"),
+  path('product/restore', restoreremovedproductview, name='backrestoreproduct'),
+  path('product/delete', deleteremovedproductview, name='deleteproduct'),
+  ##end
+  
+  ##return product part
+  path('product/quantity', getproductquantity, name='pquantity'),
+  path('return/products',returnproductview,name="returnproduct"),
+  path('return/add', addreturnproduct, name='addreturnproduct'),
+  path('return/edit/<int:id>', editreturnproduct, name='editreturnproduct'),
+  ##end
+  
 ]

@@ -2,7 +2,7 @@ from django.db import models
 import os
 from datetime import datetime
 from django.urls import reverse
-# Create your models here.
+from django.contrib.auth.models import User
 
 def product_image_path(instance, filename):
     ext = filename.split('.')[-1]
@@ -52,8 +52,23 @@ class Product(models.Model):
     
     def __str__(self):
         formatted_date = self.updated.strftime("%Y-%m-%d %I:%M %p")
-        return f"{self.name} - {formatted_date}"
+        return f"{self.name}"
     
     def get_absolute_url(self):
         return reverse("App_inventory:editproduct", kwargs={"id": self.id})
+
     
+class ProductReturn(models.Model):
+    product=models.ForeignKey(Product,on_delete=models.DO_NOTHING)
+    addedby=models.ForeignKey(User,on_delete=models.DO_NOTHING)
+    quantity=models.IntegerField(default=1)
+    crested=models.DateTimeField(auto_now=True)
+    
+    def __str__(self):
+        return f"{self.product.name} - {self.addedby.username}"
+    
+    
+    def get_absolute_url(self):
+        return reverse("App_inventory:editreturnproduct", kwargs={"id": self.id})
+    
+        

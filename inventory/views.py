@@ -1,11 +1,11 @@
-from django.shortcuts import render,redirect,get_object_or_404
+from django.shortcuts import render,redirect,get_object_or_404,HttpResponse
 from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from authuser.views import admin_required,staff_required
 from django.contrib import messages
-from inventory.models import Product
-from .forms import CategoryForm, ProductForm
-
+from inventory.models import Product,ProductReturn
+from .forms import CategoryForm, ProductForm,ProductReturnForm
+from django.http import JsonResponse
 
 @login_required(login_url='App_Auth:login')
 @admin_required
@@ -177,12 +177,131 @@ def deleteproductview(request):
     if request.method == 'POST':
         id=request.POST.get("id")
         product = get_object_or_404(Product,id=id)
-        if request.user.is_superuser:
-            product.delete()
-        elif request.user.is_staff:
+        if request.user.is_staff or request.user.is_superuser:
             product.status = False
             product.save()
-            messages.success(request,"product update successfully")
+            messages.success(request,"product removed successfully")
     else:        
         messages.error(request,"Somethig went wrong")
     return redirect('App_inventory:products')
+
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def restoreviewproduct(request):
+    products = Product.objects.filter(status=False)
+    context={
+        'product_list':products,
+    }
+    return render(request,'inventory/remove/products.html',context)  
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def restoreremovedproductview(request):
+    if request.method == 'POST':
+        id=request.POST.get("id")
+        product = get_object_or_404(Product,id=id)
+        product.status = True
+        product.save()
+        messages.success(request,"product restore successfully")
+    else:        
+        messages.error(request,"Somethig went wrong")
+    return redirect('App_inventory:restoreproducts')
+
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def deleteremovedproductview(request):
+    if request.method == 'POST':
+        id=request.POST.get("id")
+        product = get_object_or_404(Product,id=id)
+        product.delete()
+        messages.success(request,"product deleted successfully")
+    else:        
+        messages.error(request,"Somethig went wrong")
+    return redirect('App_inventory:restoreproducts')
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def returnproductview(request):
+    product_returns = ProductReturn.objects.all()
+    context = {
+        'products': product_returns,
+    }
+    print(product_returns)
+    return render(request, 'inventory/returnproduct/products.html', context)
+
+@login_required(login_url='App_Auth:login')
+@staff_required
+def addreturnproduct(request):
+    if request.method == 'POST':
+        form = ProductReturnForm(request.POST)
+        if form.is_valid():
+            product = form.cleaned_data['product']
+            quantity = form.cleaned_data['quantity']
+            addedby = request.user
+            
+            product_obj = get_object_or_404(Product, id=product.id)
+            existing_return = ProductReturn.objects.get(product=product, addedby=addedby)
+            
+            if existing_return:
+                existing_return.quantity += quantity
+                existing_return.save()
+                messages.success(request,"Return product updated.")
+            else:
+                new_return = form.save(commit=False)
+                new_return.addedby = addedby
+                new_return.save()
+                messages.success(request,"New product added to return list.")
+                
+            product_obj.quantity =product_obj.quantity-quantity
+            product_obj.save()    
+            return redirect('App_inventory:addreturnproduct')
+    else:
+        form = ProductReturnForm()
+    
+    context = {
+        'form': form,
+    }
+    return render(request, 'inventory/returnproduct/addproduct.html', context)
+
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def editreturnproduct(request,id):
+    product_return = get_object_or_404(ProductReturn, id=id)
+    if request.method == 'POST':
+        form = ProductReturnForm(request.POST, instance=product_return)
+        if form.is_valid():
+            quantity = form.cleaned_data['quantity']
+            old_quantity = request.POST['oldq']
+            newQuantity=int(old_quantity)-int(product_return.quantity)
+            print(newQuantity)
+            existing_return = Product.objects.get(id=product_return.product.id)
+            # if newQuantity <0:
+            #     existing_return.quantity +=newQuantity
+            # else:
+            existing_return.quantity=existing_return.quantity +(newQuantity)
+            existing_return.save()
+            form.save()
+            messages.success(request,"Prodcut info updated successfully.")
+            return redirect(product_return.get_absolute_url())  
+    else:
+        form = ProductReturnForm(instance=product_return)
+    
+    return render(request, 'inventory/returnproduct/editproduct.html', {'form': form})
+
+
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def getproductquantity(request):
+    product_id = request.GET.get('id')
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        data = {
+            'quantity': product.quantity,
+        }
+    except:
+        data={}
+    return JsonResponse(data)
