@@ -18,12 +18,13 @@ class ProductForm(forms.ModelForm):
             'category': forms.Select(attrs={'class': 'form-control'}),
             'color': forms.Select(attrs={'class': 'form-control'}),
             'size': forms.Select(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control','min':'1'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
             'productioncost': forms.NumberInput(attrs={'class': 'form-control'}),
             'transportcost': forms.NumberInput(attrs={'class': 'form-control'}),
             'additionalcost': forms.NumberInput(attrs={'class': 'form-control'}),
         }
+     
 
 
 class ProductReturnForm(forms.ModelForm):
@@ -32,5 +33,7 @@ class ProductReturnForm(forms.ModelForm):
         fields = ('product', 'quantity')
         widgets = {
             'product': forms.Select(attrs={'class': 'form-control'}),
-            'quantity': forms.NumberInput(attrs={'class': 'form-control'}),
+            'quantity': forms.NumberInput(attrs={'class': 'form-control','min':'1'}),
         }
+        
+     

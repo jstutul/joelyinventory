@@ -10,6 +10,7 @@ from barcode.writer import ImageWriter
 from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
+from django.core.validators import MinValueValidator
 
 
 
@@ -52,7 +53,7 @@ class Product(models.Model):
     category=models.CharField(max_length=50,choices=CATEGORY_CHOICES)
     color=models.CharField(max_length=50,choices=COLOR_CHOICES)
     size=models.CharField(max_length=50,choices=SIZE_CHOICES)
-    quantity=models.IntegerField(default=1)
+    quantity=models.IntegerField(default=1,validators=[MinValueValidator(1)])
     image=models.ImageField(upload_to="product_images/",blank=False)
     productioncost=models.FloatField(default=0.0)
     transportcost=models.FloatField(default=0.0)

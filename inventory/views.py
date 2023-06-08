@@ -18,11 +18,38 @@ def dashboard(request):
 @login_required(login_url='App_Auth:login')
 @admin_required
 def userlist(request):
-    # Retrieve all users except the logged-in user
-    users = User.objects.exclude(pk=request.user.pk)
-    #make dict to pass data to template
-    context={
-        'user_list':users,
+    
+    search_name = request.GET.get('username', '')
+    search_usertype = request.GET.get('usertype', '')
+    search_status = request.GET.get('userstatus', '')
+    users = User.objects.exclude(pk=request.user.pk)          
+
+    if search_name:
+        users=users.filter(username__icontains=search_name)
+    if search_usertype:
+        if search_usertype=="1":
+            users=users.filter(is_superuser=True,is_staff=True)
+        if search_usertype=="2":
+            users=users.filter(is_staff=True , is_superuser=False)
+        if search_usertype=="3":
+            users=users.filter(is_active=True,is_staff=False)    
+    if search_status:
+        print("=",search_status)
+        if search_status=="1":
+            users=users.filter(is_active=True)
+        if search_status=="2":
+            users=users.filter(is_active=False) 
+            
+
+    paginator = Paginator(users, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'product_list': page_obj,
+        'search_name': search_name,
+        'search_status':search_status,
+        'search_usertype':search_usertype,
     }
     return render(request,'inventory/users/users.html',context)
 
@@ -293,11 +320,37 @@ def deleteremovedproductview(request):
 @login_required(login_url='App_Auth:login')
 @admin_required
 def returnproductview(request):
-    product_returns = ProductReturn.objects.all()
+    search_name = request.GET.get('productname', '')
+    search_category = request.GET.get('productcategory', '')
+    search_color = request.GET.get('productcolor', '')
+    search_size = request.GET.get('productsize', '')
+    products = ProductReturn.objects.all()              
+
+    if search_name:
+        products=products.filter(product__name__icontains=search_name)
+    if search_category:
+        products=products.filter(product__category=search_category)
+    if search_color:
+        products=products.filter(product__color=search_color)
+    if search_size:
+        products=products.filter(product__size=search_size)            
+    
+    
+    
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
     context = {
-        'products': product_returns,
+        'product_list': page_obj,
+        'search_name': search_name,
+        'selected_category': search_category,
+        'selected_color': search_color,
+        'selected_size': search_size,
+        'category_choices': Product.CATEGORY_CHOICES,
+        'color_choices': Product.COLOR_CHOICES,
+        'size_choices': Product.SIZE_CHOICES,
     }
-    print(product_returns)
     return render(request, 'inventory/returnproduct/products.html', context)
 
 @login_required(login_url='App_Auth:login')
@@ -314,6 +367,9 @@ def addreturnproduct(request):
             
             existing_return = ProductReturn.objects.filter(product=product, addedby=addedby).first()
             
+            if product_obj.quantity < quantity :
+                messages.error(request,"you cann't return more then available product.")
+                return redirect('App_inventory:addreturnproduct')
             if existing_return:
                 existing_return.quantity += quantity
                 existing_return.save()

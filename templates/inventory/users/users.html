@@ -11,8 +11,50 @@
             </div>
         </div>
         <div class="col-lg-12">
+            <div class="card px-4">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>Username</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="username" id="username" value="{{ search_name }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Usertype</label>
+                                <select class="form-control mb-3" name="usertype">
+                                    <option selected="" value="">Select</option>
+                                    <option {% if search_usertype == '1'%} selected {% endif %} value="1">Admin</option>
+                                    <option {% if search_usertype == '2'%} selected {% endif %} value="2">Staff</option>
+                                    <option {% if search_usertype == '3'%} selected {% endif %} value="3">Sales</option>
+                                   
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Status</label>
+                                <select class="form-control mb-3" name="userstatus">
+                                    <option selected="" value="">Select</option>
+                                    <option {% if search_status == '1' %}selected {% endif %} value="1">Active</option>
+                                    <option {% if search_status == '2' %}selected {% endif %} value="2">Inactive</option>
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>&nbsp</label><br>
+                                <button class="btn btn-primary">Search</button>
+                            </div>
+                        </div>                 
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-12">
             <div class="table-responsive rounded mb-3">
-            <table class="data-table table mb-0 tbl-server-info">
+            <table class="table table-hover">
                 <thead class="bg-white text-uppercase">
                     <tr class="ligth ligth-data">
                         <th>SL</th>
@@ -25,7 +67,7 @@
                     </tr>
                 </thead>
                 <tbody class="ligth-body">
-                   {% for user in user_list %}
+                   {% for user in product_list %}
                     <tr>
                         <td>{{forloop.counter}}</td>
                         <td>{{user.get_full_name}}</td>
@@ -46,6 +88,58 @@
                 </tbody>
             </table>
             </div>
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    {% if product_list.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">
+                                <span aria-hidden="true">&laquo; first</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ product_list.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">Previous</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    {% endif %}
+
+                    {% for page in product_list.paginator.page_range %}
+                        {% if page == product_list.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">
+                                    {{ page }}
+                                    <span class="sr-only">(current)</span>
+                                </span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if product_list.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ product_list.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">Next</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ product_list.paginator.num_pages }}" aria-label="Last">
+                                <span aria-hidden="true">last &raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
         </div>
     </div>
 </div>
