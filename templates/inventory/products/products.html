@@ -14,8 +14,60 @@
             </div>
         </div>
         <div class="col-lg-12">
+            <div class="card px-4">
+                <form method="get">
+                    <div class="row">
+                        <div class="col-lg-6">
+                            <label>Product Name</label>
+                            <div class="form-group">
+                                <input type="text" class="form-control" name="productname" id="productname" value="{{ search_name }}">
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Category</label>
+                                <select class="form-control mb-3" name="productcategory">
+                                    <option selected="" value="">Select</option>
+                                    {% for category, category_label in category_choices %}
+                                    <option value="{{ category }}" {% if selected_category == category %}selected{% endif %}>{{ category_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Color</label>
+                                <select class="form-control mb-3" name="productcolor">
+                                    <option selected="" value="">Select</option>
+                                    {% for color, color_label in color_choices %}
+                                    <option value="{{ color }}" {% if selected_color == color %}selected{% endif %}>{{ color_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-2">
+                            <div class="form-group">
+                                <label>Size</label>
+                                <select class="form-control mb-3" name="productsize">
+                                    <option selected="" value="">Select</option>
+                                    {% for size, size_label in size_choices %}
+                                    <option value="{{ size }}" {% if selected_size == size %}selected{% endif %}>{{ size_label }}</option>
+                                    {% endfor %}
+                                </select>
+                            </div>
+                        </div>
+                        <div class="col-lg-3">
+                            <div class="form-group">
+                                <button class="btn btn-primary">Search</button>
+                            </div>
+                        </div>                 
+                    </div>
+                </form>
+            </div>
+        </div>
+        <div class="col-lg-12">
             <div class="table-responsive rounded mb-3">
-            <table class="data-table table mb-0 tbl-server-info">
+            <table class="table mb-0 tbl-server-info">
                 <thead class="bg-white text-uppercase">
                     <tr class="ligth ligth-data">
                         <th>Product</th>
@@ -44,7 +96,7 @@
                         <td>{{product.size}}</td>
                         <td>{{product.quantity}}</td>
                         <td>{{product.totalcost}}</td>
-                        <td>{{product.code}}</td>
+                        <td><img  width="50px" src="{{product.barcode}}"/></td>
                         <td>
                             <div class="d-flex align-items-center list-action">
                                 <a class="badge bg-success mr-2" href="{% url 'App_inventory:editproduct' product.id %}"><i class="ri-pencil-line mr-0"></i></a>
@@ -55,7 +107,64 @@
                     {% endfor %}
                 </tbody>
             </table>
+            <!-- Pagination -->
+                <!-- Add this code below your product listing -->
+
+                <!-- Pagination -->
+                
             </div>
+            <nav aria-label="...">
+                <ul class="pagination justify-content-end">
+                    {% if product_list.has_previous %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page=1" aria-label="First">
+                                <span aria-hidden="true">&laquo; first</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ product_list.previous_page_number }}" aria-label="Previous">
+                                <span aria-hidden="true">Previous</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Previous</span>
+                        </li>
+                    {% endif %}
+
+                    {% for page in product_list.paginator.page_range %}
+                        {% if page == product_list.number %}
+                            <li class="page-item active" aria-current="page">
+                                <span class="page-link">
+                                    {{ page }}
+                                    <span class="sr-only">(current)</span>
+                                </span>
+                            </li>
+                        {% else %}
+                            <li class="page-item">
+                                <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                            </li>
+                        {% endif %}
+                    {% endfor %}
+
+                    {% if product_list.has_next %}
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ product_list.next_page_number }}" aria-label="Next">
+                                <span aria-hidden="true">Next</span>
+                            </a>
+                        </li>
+                        <li class="page-item">
+                            <a class="page-link" href="?page={{ product_list.paginator.num_pages }}" aria-label="Last">
+                                <span aria-hidden="true">last &raquo;</span>
+                            </a>
+                        </li>
+                    {% else %}
+                        <li class="page-item disabled">
+                            <span class="page-link">Next</span>
+                        </li>
+                    {% endif %}
+                </ul>
+            </nav>
         </div>
     </div>
     <!-- Page end  -->

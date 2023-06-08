@@ -22,10 +22,13 @@ urlpatterns = [
   ##end
   
   ##return product part
-  path('product/quantity', getproductquantity, name='pquantity'),
+  path('product/quantity/', getproductquantity, name='pquantity'),
   path('return/products',returnproductview,name="returnproduct"),
   path('return/add', addreturnproduct, name='addreturnproduct'),
   path('return/edit/<int:id>', editreturnproduct, name='editreturnproduct'),
   ##end
+  path('product/barcode',barcodeview,name="barcode"),
+  path('product/barcode/image',getbarcodeimage,name="getbarcodeimg"),
+  
   
 ]

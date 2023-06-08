@@ -3,10 +3,11 @@ from django.contrib.auth.decorators import login_required
 from django.contrib.auth.models import User
 from authuser.views import admin_required,staff_required
 from django.contrib import messages
-from inventory.models import Product,ProductReturn
+from django.core.paginator import Paginator
+from inventory.models import Product,ProductReturn,Notifications
 from .forms import CategoryForm, ProductForm,ProductReturnForm
 from django.http import JsonResponse
-
+from joelypos.utility import *
 @login_required(login_url='App_Auth:login')
 @admin_required
 def dashboard(request):
@@ -74,7 +75,9 @@ def adduser(request):
         return redirect('App_inventory:adduser')
     else:
         return render(request,'inventory/users/addusers.html')
-    
+
+@login_required(login_url='App_Auth:login')
+@admin_required    
 def deleteuserdata(request):
     # try:
     if request.method=="POST":
@@ -132,12 +135,43 @@ def edituserdata(request,id):
     }
     return render(request,'inventory/users/edit.html',context)    
 
+
 @login_required(login_url='App_Auth:login')
 @staff_required  
 def viewproduct(request):
-    products = Product.objects.filter(status=True)
-    context={
-        'product_list':products,
+    search_name = request.GET.get('productname', '')
+    search_category = request.GET.get('productcategory', '')
+    search_color = request.GET.get('productcolor', '')
+    search_size = request.GET.get('productsize', '')
+                   
+    products = Product.objects.filter(
+        status=True
+    )
+    
+    if search_name:
+        products=products.filter(name__icontains=search_name)
+    if search_category:
+        products=products.filter(category=search_category)
+    if search_color:
+        products=products.filter(color=search_color)
+    if search_size:
+        products=products.filter(size=search_size)            
+    
+    
+    
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'product_list': page_obj,
+        'search_name': search_name,
+        'selected_category': search_category,
+        'selected_color': search_color,
+        'selected_size': search_size,
+        'category_choices': Product.CATEGORY_CHOICES,
+        'color_choices': Product.COLOR_CHOICES,
+        'size_choices': Product.SIZE_CHOICES,
     }
     return render(request,'inventory/products/products.html',context)    
 @login_required(login_url='App_Auth:login')
@@ -180,6 +214,11 @@ def deleteproductview(request):
         if request.user.is_staff or request.user.is_superuser:
             product.status = False
             product.save()
+            noti=Notifications.objects.create(
+                user=request.user,
+                message= "Hello Admin, ( "+str(request.user)+" ) user ,removed a product from product list."
+            )
+            noti.save()
             messages.success(request,"product removed successfully")
     else:        
         messages.error(request,"Somethig went wrong")
@@ -189,9 +228,39 @@ def deleteproductview(request):
 @login_required(login_url='App_Auth:login')
 @admin_required
 def restoreviewproduct(request):
-    products = Product.objects.filter(status=False)
-    context={
-        'product_list':products,
+    search_name = request.GET.get('productname', '')
+    search_category = request.GET.get('productcategory', '')
+    search_color = request.GET.get('productcolor', '')
+    search_size = request.GET.get('productsize', '')
+                   
+    products = Product.objects.filter(
+        status=False
+    )
+    
+    if search_name:
+        products=products.filter(name__icontains=search_name)
+    if search_category:
+        products=products.filter(category=search_category)
+    if search_color:
+        products=products.filter(color=search_color)
+    if search_size:
+        products=products.filter(size=search_size)            
+    
+    
+    
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+    
+    context = {
+        'product_list': page_obj,
+        'search_name': search_name,
+        'selected_category': search_category,
+        'selected_color': search_color,
+        'selected_size': search_size,
+        'category_choices': Product.CATEGORY_CHOICES,
+        'color_choices': Product.COLOR_CHOICES,
+        'size_choices': Product.SIZE_CHOICES,
     }
     return render(request,'inventory/remove/products.html',context)  
 
@@ -242,7 +311,8 @@ def addreturnproduct(request):
             addedby = request.user
             
             product_obj = get_object_or_404(Product, id=product.id)
-            existing_return = ProductReturn.objects.get(product=product, addedby=addedby)
+            
+            existing_return = ProductReturn.objects.filter(product=product, addedby=addedby).first()
             
             if existing_return:
                 existing_return.quantity += quantity
@@ -276,15 +346,14 @@ def editreturnproduct(request,id):
             quantity = form.cleaned_data['quantity']
             old_quantity = request.POST['oldq']
             newQuantity=int(old_quantity)-int(product_return.quantity)
-            print(newQuantity)
             existing_return = Product.objects.get(id=product_return.product.id)
-            # if newQuantity <0:
-            #     existing_return.quantity +=newQuantity
-            # else:
-            existing_return.quantity=existing_return.quantity +(newQuantity)
-            existing_return.save()
-            form.save()
-            messages.success(request,"Prodcut info updated successfully.")
+            if int(existing_return.quantity) > int(newQuantity):
+                existing_return.quantity=existing_return.quantity +(newQuantity)
+                existing_return.save()
+                form.save()
+                messages.success(request,"Prodcut info updated successfully.")
+            else:
+                messages.error(request,"Prodcut quantity can not me less then zero.")
             return redirect(product_return.get_absolute_url())  
     else:
         form = ProductReturnForm(instance=product_return)
@@ -297,10 +366,35 @@ def editreturnproduct(request,id):
 @admin_required
 def getproductquantity(request):
     product_id = request.GET.get('id')
+    print(product_id)
     try:
         product = get_object_or_404(Product, id=product_id)
         data = {
             'quantity': product.quantity,
+        }
+    except:
+        data={}
+    return JsonResponse(data)
+
+@login_required(login_url='App_Auth:login')
+@staff_required
+def barcodeview(request):
+    product=Product.objects.filter(status=True)
+    context={
+        'products':product,
+    }
+    return render(request, 'inventory/barcode/index.html',context)
+
+@login_required(login_url='App_Auth:login')
+@staff_required
+def getbarcodeimage(request):
+    product_id = request.GET.get('id')
+    try:
+        product = get_object_or_404(Product, id=product_id)
+        print(product)
+        data = {
+            'pid': product.id,
+            'barcode': "/"+str(product.barcode).replace("\\","/"),
         }
     except:
         data={}

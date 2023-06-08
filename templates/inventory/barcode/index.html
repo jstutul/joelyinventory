@@ -1,0 +1,46 @@
+{% extends 'inventory/base/base.html'%}
+{% load static %}
+{% load custom_filters %}
+{% block main %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-8 mx-auto">
+            {% include 'alert/alert.html'%}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Print Product Barcode</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <div class="row">
+                        <div class="col-md-12">
+                            <div class="form-group">
+                                <label>Product Name</label>
+                                <select id="barcode_product_id" class="form-control">
+                                    {% if products.count > 0 %}
+                                    <option value="-1">Select</option>
+                                    {% endif %}
+                                    {% for product in products%}
+                                        <option value="{{product.id}}">{{product.name}}</option>
+                                    {%empty%}
+                                    <option value="">No product</option>
+                                    {% endfor %}
+                                </select>   
+                                <div class="help-block with-errors"></div>
+                            </div> 
+                        </div>
+                        <div class="col-md-6">
+                            <div class="form-group">
+                                <img src="" id="barcodeimg"/>
+                            </div> 
+                        </div>
+                    </div>                            
+                    <button class="btn btn-primary mr-2" id="downloadButton">Download Now</button>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% endblock %}
