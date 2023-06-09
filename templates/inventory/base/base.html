@@ -13,13 +13,6 @@
       <link rel="stylesheet" href="{% static 'assets/vendor/remixicon/fonts/remixicon.css'%}">
   </head>
   <body class="  ">
-    <!-- loader Start -->
-    {% comment %} <div id="loading">
-          <div id="loading-center">
-          </div>
-    </div> {% endcomment %}
-    <!-- loader END -->
-    <!-- Wrapper Start -->
     <div class="wrapper">
       
       <div class="iq-sidebar  sidebar-default ">
@@ -490,6 +483,17 @@
                         }
                     };
                 }
+            });
+            $('#downloadButton').click(function() {
+                // Print the specific image
+                var barcodeImg = document.getElementById('barcodeimg');
+                var printWindow = window.open('', '_blank');
+                printWindow.document.write('<html><head><title>Print</title></head><body>');
+                printWindow.document.write('<img src="' + barcodeImg.src + '">');
+                printWindow.document.write('</body></html>');
+                printWindow.document.close();
+                printWindow.print();
+                printWindow.close();
             });
         })
         </script>

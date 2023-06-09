@@ -1,4 +1,5 @@
 <!DOCTYPE html>
+{% load static%}
 <html>
 <head>
 <title>Access Denied</title>
@@ -29,6 +30,12 @@
 <h3 class="w3-center w3-animate-right">You dont have permission to view this page.</h3>
 <h3 class="w3-center w3-animate-zoom">🚫🚫🚫🚫</h3>
 <h6 class="w3-center w3-animate-zoom">error code:403 forbidden</h6>
+<h3>After 5 second you will be redirect to your dashboard</h3>
 </div>
+{% comment %} <script>
+    setTimeout(function() {
+        window.location.href = '{% url 'App_pos:poshome'%}';  // Replace with your desired URL
+      }, 5000); 
+</script> {% endcomment %}
 </body>
 </html>

@@ -1,0 +1,205 @@
+<!doctype html>
+{% load static %}
+<html lang="en">
+    <head>
+        <meta charset="utf-8">
+        <meta name="viewport" content="width=device-width, initial-scale=1, shrink-to-fit=no">
+        <title>POS Dash</title>
+        <link rel="shortcut icon" href="{% static 'assets/images/favicon.ico' %}" />
+        <link rel="stylesheet" href="{% static 'assets/css/backend-plugin.min.css'%}">
+        <link rel="stylesheet" href="{% static 'assets/css/backend.css'%}">
+        <link rel="stylesheet" href="{% static 'assets/vendor/@fortawesome/fontawesome-free/css/all.min.css'%}">
+        <link rel="stylesheet" href="{% static 'assets/vendor/line-awesome/dist/line-awesome/css/line-awesome.min.css'%}">
+        <link rel="stylesheet" href="{% static 'assets/vendor/remixicon/fonts/remixicon.css'%}">
+
+    </head>
+      <style>
+        .col-lg-3{
+            position: relative;
+            width: 100%;
+            padding-right: 5px;
+            padding-left: 8px;
+        }
+        .table td {
+            padding: 2px 5px !important;
+            border: 0px;
+            border-bottom: 1px solid #DCDFE8;
+            font-size: 12px;
+            line-height: initial;
+        }
+        .table .ligth th {
+            font-size: 14px !important;
+        }
+        .table td, .table th {
+            padding: 1rem;
+        }
+        body.sidebar-main .iq-top-navbar {
+            width: calc(100% - 0px);
+        }
+        @media (min-width: 1300px){
+            body.sidebar-main .content-page {
+                margin-left: 0px;
+            }
+        }
+
+      </style>
+    <body class="sidebar-main">
+        <div class="wrapper">    
+            <div class="iq-top-navbar">
+                <div class="iq-navbar-custom">
+                    <nav class="navbar navbar-expand-lg navbar-light p-0">
+                        <div class="iq-search-bar device-search">
+                        <h3>Joely Shop</h3>
+                        </div>
+                        <div class="d-flex align-items-center">
+                            <div class="collapse navbar-collapse" id="navbarSupportedContent">
+                                <ul class="navbar-nav ml-auto navbar-list align-items-center">
+                                    
+                                    <li class="nav-item nav-icon dropdown caption-content">
+                                        <a href="#" class="search-toggle dropdown-toggle" id="dropdownMenuButton4"
+                                            data-toggle="dropdown" aria-haspopup="true" aria-expanded="false">
+                                            <img src="{% static 'assets/images/user/1.png' %}" class="img-fluid rounded" alt="user">
+                                        </a>
+                                        <div class="iq-sub-dropdown dropdown-menu" aria-labelledby="dropdownMenuButton">
+                                            <div class="card shadow-none m-0">
+                                                <div class="card-body p-0 text-center">
+                                                    <div class="p-3">
+                                                        <h5 class="mb-1">
+                                                        {% if request.user.get_full_name %}
+                                                            {{ request.user.get_full_name }}
+                                                        {% else %}
+                                                            {{ request.user.username }}
+                                                        {% endif %}
+
+                                                        </h5>
+                                                        <p class="mb-0">{{user.last_login}}</p>
+                                                        <div class="d-flex align-items-center justify-content-center mt-3">
+                                                            <a href="{% url 'App_Auth:logout'%}" class="btn border">Sign Out</a>
+                                                        </div>
+                                                    </div>
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </li>
+                                </ul>
+                            </div>
+                        </div>
+                    </nav>
+                </div>
+            </div>
+            {% block main %}
+
+            {% endblock %}
+        </div>
+
+        <script src="{% static 'assets/js/backend-bundle.min.js'%}"></script>
+        <script src="{% static 'assets/js/table-treeview.js'%}"></script>
+        <script src="{% static 'assets/js/customizer.js'%}"></script>
+        <script src="{% static 'assets/js/app.js'%}"></script>>
+        <script>
+            $(document).ready(function() {
+              // Calculate subtotal, discount, and total when quantity or price changes
+              $('.quantity-input, .price-input').on('input', function() {
+                calculateBill();
+              });
+              
+              // Calculate bill when discount input changes
+              $('#discount').on('input', function() {
+                calculateBill();
+              });
+
+              getProducts();
+
+
+              // Calculate bill based on inputs and update the values
+              function calculateBill() {
+                var subtotal = 0;
+                var discount = parseFloat($('#discount').val()) || 0;
+                
+                $('.product-row').each(function() {
+                  var quantity = parseFloat($(this).find('.quantity-input').val()) || 0;
+                  var price = parseFloat($(this).find('.price-input').val()) || 0;
+                  
+                  var productTotal = quantity * price;
+                  subtotal += productTotal;
+                  
+                  $(this).find('.product-total').text(productTotal.toFixed(2));
+                });
+                
+                var total = subtotal - discount;
+                
+                $('#subtotal').val(subtotal.toFixed(2));
+                $('#total').val(total.toFixed(2));
+              }
+              calculateBill();
+            }); 
+
+            $(document).on('blur','#barcode',function(){
+                getProducts();
+            })
+            $('#productcategory, #productcolor, #productsize').on('change', getProducts);
+            function getProducts(){
+                var var_barcode = $('#barcode').val();
+                var var_category = $('#productcategory').val();
+                var var_color = $('#productcolor').val();
+                var var_size = $('#productsize').val();
+                var load="<div style='display: flex;justify-content: center;width: 100%;'><div><img src='{% static 'assets/images/loading.gif'%}'/></div></div>";
+                if(var_barcode==undefined){
+                    var_barcode="";
+                }
+                if(var_category==undefined){
+                    var_category="";
+                }
+                if(var_color==undefined){
+                    var_color="";
+                }
+                if(var_size==undefined){
+                    var_size="";
+                }
+                $.ajax({
+                    url: '{% url 'App_pos:getproductapi' %}',
+                    method: 'GET',
+                    dataType: 'json',
+                    data:'barcode='+var_barcode+'&category='+var_category+'&color='+var_color+'&size='+var_size,
+                    success: function(response) {
+                      var data=JSON.parse(response.products);
+                      var result=displayproduct(data);
+                      $("#productzone").html(load);
+                      setTimeout(function() {
+                        $("#productzone").html(result);
+                      }, 1000);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                      alert('AJAX Error: ' + textStatus, errorThrown);
+                    }
+                }); 
+            }
+
+            function displayproduct(data){
+                var strVar="";
+                for(i=0;i<data.length;i++){
+                    strVar += "<div class=\"col-lg-3\">";
+                    strVar += "     <div class=\"card singleproduct\" spid=\""+data[i].pk+"\">";
+                    strVar += "          <img src=\"/../media/"+data[i].fields.image+"\" class=\"card-img-top\" style=\"height:160px\" alt=\"#\">";
+                    strVar += "           <div>";
+                    strVar += "                 <span class=\"badge badge-primary ml-1\">"+data[i].fields.size+"<\/span>";
+                    strVar += "                 <span class=\"badge badge-success ml-2\">"+data[i].fields.color+"<\/span>";
+                    strVar += "           <\/div>";
+                    strVar += "           <div class=\"p-1\">";
+                    strVar += "                <span class=\"\">"+data[i].fields.name+"<\/span>";
+                    strVar += "           <\/div>";
+                    strVar += "    <\/div>";
+                    strVar += "    <span class=\"badge badge-primary ml-2\" style=\"position: absolute; top: -1px; left: -5px;\">"+data[i].fields.quantity+"<\/span>";
+                    strVar += "<\/div>";
+                }
+                return strVar;
+                
+            }
+
+            $(document).on('click','.singleproduct',function(){
+                console.log($(this).attr('spid'));
+            })
+        </script>
+
+    </body>
+</html>

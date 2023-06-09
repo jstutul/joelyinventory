@@ -39,20 +39,26 @@ def loginview(request):
         user = authenticate(request, username=username, password=password)
         if user is not None:
             auth_login(request, user)
-            messages.success(request,"you are now authenticated")
+            # messages.success(request,"you are now authenticated")
             url=request.META.get('HTTP_REFERER')
             try:
                 query = requests.utils.urlparse(url).query
                 params=dict(x.split('=') for x in query.split('&'))
                 if 'next' in params:
                     nextPage = params['next']
-                    return redirect(nextPage)
+                    if user.is_superuser and user.is_staff:
+                        return redirect(nextPage)
+                    else:
+                        return redirect('App_pos:poshome')
+                    
             except Exception:
-                return redirect('App_inventory:dashboard')
+                if user.is_superuser and user.is_staff:
+                    return redirect('App_inventory:dashboard')
+                else:
+                    return redirect('App_pos:poshome')
         else:
             messages.error(request, "invalid credential")
             return redirect('App_Auth:login')
-    context={}
     return render(request,'authuser/login.html')
 
 def logoutview(request):
