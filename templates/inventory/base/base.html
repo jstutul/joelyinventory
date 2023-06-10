@@ -257,10 +257,10 @@
                                                             {{ request.user.username }}
                                                         {% endif %}   
                                                         </h5>
-                                                        <p class="mb-0">Since 10 march, 2020</p>
+                                                        <p class="mb-0">{{user.last_login}}</p>
                                                         <div class="d-flex align-items-center justify-content-center mt-3">
                                                             <a href="../app/user-profile.html" class="btn border mr-2">Profile</a>
-                                                            <a href="auth-sign-in.html" class="btn border">Sign Out</a>
+                                                            <a href="{% url 'App_Auth:logout'%}" class="btn border">Sign Out</a>
                                                         </div>
                                                     </div>
                                                 </div>

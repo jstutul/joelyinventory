@@ -100,11 +100,13 @@
             $(document).ready(function() {
               // Calculate subtotal, discount, and total when quantity or price changes
               $('.quantity-input, .price-input').on('input', function() {
+                console.log(1);
                 calculateBill();
               });
               
               // Calculate bill when discount input changes
               $('#discount').on('input', function() {
+                console.log(2)
                 calculateBill();
               });
 
@@ -117,13 +119,11 @@
                 var discount = parseFloat($('#discount').val()) || 0;
                 
                 $('.product-row').each(function() {
-                  var quantity = parseFloat($(this).find('.quantity-input').val()) || 0;
-                  var price = parseFloat($(this).find('.price-input').val()) || 0;
-                  
-                  var productTotal = quantity * price;
-                  subtotal += productTotal;
-                  
-                  $(this).find('.product-total').text(productTotal.toFixed(2));
+                    var quantity = parseFloat($(this).find('.quantity-input').val()) || 0;
+                    var price = parseFloat($(this).find('.price-input').val()) || 0;
+                    var productTotal = quantity * price;
+                    subtotal += productTotal;
+                    $(this).find('.product-total').text(productTotal.toFixed(2));
                 });
                 
                 var total = subtotal - discount;
@@ -144,6 +144,7 @@
                 var var_color = $('#productcolor').val();
                 var var_size = $('#productsize').val();
                 var load="<div style='display: flex;justify-content: center;width: 100%;'><div><img src='{% static 'assets/images/loading.gif'%}'/></div></div>";
+                var noload="<div style='display: flex;justify-content: center;align-items:center;width: 100%;'><div><h1>No Product Found</h1></div></div>";
                 if(var_barcode==undefined){
                     var_barcode="";
                 }
@@ -166,7 +167,11 @@
                       var result=displayproduct(data);
                       $("#productzone").html(load);
                       setTimeout(function() {
-                        $("#productzone").html(result);
+                        if(result!=""){
+                            $("#productzone").html(result);
+                        }else{
+                            $("#productzone").html(noload);
+                        }
                       }, 1000);
                     },
                     error: function(jqXHR, textStatus, errorThrown) {
@@ -178,18 +183,18 @@
             function displayproduct(data){
                 var strVar="";
                 for(i=0;i<data.length;i++){
-                    strVar += "<div class=\"col-lg-3\">";
-                    strVar += "     <div class=\"card singleproduct\" spid=\""+data[i].pk+"\">";
+                    strVar += "<div class=\"col-lg-3 singleproduct\" spid=\""+data[i].pk+"\">";
+                    strVar += "     <div class=\"card\">";
                     strVar += "          <img src=\"/../media/"+data[i].fields.image+"\" class=\"card-img-top\" style=\"height:160px\" alt=\"#\">";
                     strVar += "           <div>";
-                    strVar += "                 <span class=\"badge badge-primary ml-1\">"+data[i].fields.size+"<\/span>";
-                    strVar += "                 <span class=\"badge badge-success ml-2\">"+data[i].fields.color+"<\/span>";
+                    strVar += "                 <span class=\"badge badge-primary psize ml-1\">"+data[i].fields.size+"<\/span>";
+                    strVar += "                 <span class=\"badge badge-success pcolor ml-2\">"+data[i].fields.color+"<\/span>";
                     strVar += "           <\/div>";
                     strVar += "           <div class=\"p-1\">";
                     strVar += "                <span class=\"\">"+data[i].fields.name+"<\/span>";
                     strVar += "           <\/div>";
                     strVar += "    <\/div>";
-                    strVar += "    <span class=\"badge badge-primary ml-2\" style=\"position: absolute; top: -1px; left: -5px;\">"+data[i].fields.quantity+"<\/span>";
+                    strVar += "    <span class=\"badge badge-primary product-count ml-2\" style=\"position: absolute; top: -1px; left: -5px;\">"+data[i].fields.quantity+"<\/span>";
                     strVar += "<\/div>";
                 }
                 return strVar;
@@ -197,8 +202,137 @@
             }
 
             $(document).on('click','.singleproduct',function(){
-                console.log($(this).attr('spid'));
+                var pjson = {
+                    spid: $(this).attr('spid'),
+                    product:$(this).find(".p-1 span").text().trim(),
+                    color:$(this).find(".pcolor").text().trim(),
+                    size:$(this).find(".psize").text().trim(),
+                    quantity:1,
+                    price:($("#cart_" + $(this).attr('spid')).val() || 0),
+                };
+                
+                const countSpan = $(this).find('.product-count');
+                const count = parseInt(countSpan.text());
+                if (count === 0) {
+                    alert('product quantity is zero.');
+                    $(this).off('click');
+                }else{
+                    const newCount = count - 1;
+                    countSpan.text(newCount);
+                    console.log(pjson);
+                    ProductsCart.addItemToCart(pjson);
+                }
             })
+            var ProductsCart = (function() {
+                var cart = [];
+    
+                function saveCart() {
+                    localStorage.setItem('productslist', JSON.stringify(cart));
+                    displayCart();
+                }
+    
+                function loadCart() {
+                    cart = JSON.parse(localStorage.getItem('productslist')) || [];
+                }
+    
+                if (localStorage.getItem("productslist") != null) {
+                    loadCart();
+                }
+    
+                function displayCart() {
+                    cart=ProductsCart.getCart();
+                    var strp=""
+                    cart.forEach(function(item) {
+                        strp+="<tr class=\"product-row cartitem\" spid=\""+item.spid+"\">"
+                        strp+="    <td>"
+                        strp+="        <a class=\"badge bg-warning mr-2\">"
+                        strp+="            <i class=\"ri-delete-bin-line mr-0\"></i>"
+                        strp+="        </a>"
+                        strp+=item.product;
+                        strp+="    </td>"
+                        strp+="    <td>"
+                        strp+="        <input type=\"number\" min=\"1\" value=\""+item.quantity+"\" style=\"width: 43px;\" class=\"quantity-input\">"
+                        strp+="    </td>"
+                        strp+="    <td>"
+                        strp+="        <span class=\"badge badge-primary\">"+item.size+"</span>"
+                        strp+="        <span class=\"badge badge-success\">"+item.color+"</span>"
+                        strp+="    </td>"
+                        strp+="    <td>"
+                        strp+="        <input type=\"number\" min=\"0\" value=\""+item.price+"\" id=\"cart_"+item.spid+"\" style=\"width: 80px;\" class=\"price-input\">"
+                        strp+="    </td>"
+                        strp+="    <input class=\"product-total\" type=\"hidden\" value=\"0\"/>"
+                        strp+="</tr>"
+                    });
+                    $("#cart-ligt").html(strp);
+                    $('.quantity-input, .price-input').on('input', function() {
+                        console.log(1);
+                        calculateBill();
+                      });
+                      
+                      // Calculate bill when discount input changes
+                      $('#discount').on('input', function() {
+                        console.log(2)
+                        calculateBill();
+                      });
+                    
+                }
+    
+                var obj = {};
+                obj.addItemToCart = function(item) {
+                    var pitem = cart.find(i => i.spid === item.spid);
+                    if (!pitem) {
+                        cart.push(item);
+                    } else {
+                        pitem.quantity++;
+                        pitem.price=item.price;
+                    }
+                    saveCart();
+                };
+    
+                obj.removeToCart = function(id) {
+                    cart = cart.filter(item => item.id !== id);
+                    saveCart();
+                };
+    
+                obj.clearCart = function() {
+                    cart = [];
+                    saveCart();
+                };
+    
+                obj.getCart = function() {
+                    return cart;
+                };
+    
+                return obj;
+            })();
+
+            function display(){
+                cart=ProductsCart.getCart();
+                var strp=""
+                cart.forEach(function(item) {
+                    strp+="<tr class=\"product-row cartitem\" spid=\""+item.spid+"\">"
+                    strp+="    <td>"
+                    strp+="        <a class=\"badge bg-warning mr-2\">"
+                    strp+="            <i class=\"ri-delete-bin-line mr-0\"></i>"
+                    strp+="        </a>"
+                    strp+=item.product;
+                    strp+="    </td>"
+                    strp+="    <td>"
+                    strp+="        <input type=\"number\" min=\"1\" value=\""+item.quantity+"\" style=\"width: 43px;\" class=\"quantity-input\">"
+                    strp+="    </td>"
+                    strp+="    <td>"
+                    strp+="        <span class=\"badge badge-primary\">"+item.size+"</span>"
+                    strp+="        <span class=\"badge badge-success\">"+item.color+"</span>"
+                    strp+="    </td>"
+                    strp+="    <td>"
+                    strp+="        <input type=\"number\" min=\"0\" value=\""+item.price+"\" id=\"cart_"+item.spid+"\" style=\"width: 80px;\" class=\"price-input\">"
+                    strp+="    </td>"
+                    strp+="    <input class=\"product-total\" type=\"hidden\" value=\"0\"/>"
+                    strp+="</tr>"
+                });
+                $("#cart-ligt").html(strp);
+            }
+            display();
         </script>
 
     </body>

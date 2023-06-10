@@ -1,6 +1,6 @@
 import math 
 from django.core import serializers
-from django.shortcuts import render
+from django.shortcuts import render,get_object_or_404
 from inventory.models import Product
 from django.http import JsonResponse
 from django.contrib.auth.decorators import login_required
@@ -37,3 +37,26 @@ def get_product_api(request):
         "products": serialized_products,
     }
     return JsonResponse(data, safe=False)
+
+
+@login_required(login_url='App_Auth:login')
+def get_single_product_api(request):
+    pid = request.GET.get('id')
+    print(pid)
+    try:
+        products = get_object_or_404(Product,id=pid)
+        product={
+            'id':products.id,
+            'name':products.name,
+            'image':products.image.url,
+            'quantity':products.quantity,
+            'size':products.size,
+            'color':products.color,
+        }
+    except:
+        product=[]  
+    data = {
+        "products": product,
+    }
+    return JsonResponse(data, safe=False)
+

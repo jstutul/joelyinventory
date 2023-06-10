@@ -7,4 +7,5 @@ urlpatterns = [
     path('',poshome,name="poshome"),
     #api part
     path('getproduct',get_product_api,name='getproductapi'),
+    path('getsingleproduct',get_single_product_api,name='getsingleproduct'),
 ]
