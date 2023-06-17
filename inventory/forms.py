@@ -1,5 +1,7 @@
 from django import forms
 from .models import Category, Product,ProductReturn
+from pos.models import Sell
+
 
 class CategoryForm(forms.ModelForm):
     class Meta:
@@ -37,3 +39,17 @@ class ProductReturnForm(forms.ModelForm):
         }
         
      
+
+
+class SellUpdateForm(forms.ModelForm):
+    class Meta:
+        model = Sell
+        fields = ['order','customer', 'phone', 'paymentstatus', 'address','status']     
+        widgets = {
+            'order': forms.Select(attrs={'class': 'form-control'}),
+            'customer': forms.TextInput(attrs={'class': 'form-control'}),
+            'phone': forms.TextInput(attrs={'class': 'form-control'}),
+            'address': forms.Textarea(attrs={'class': 'form-control'}),
+            'paymentstatus': forms.Select(attrs={'class': 'form-control'}),
+            'status': forms.CheckboxInput(),
+        }

@@ -109,6 +109,7 @@ class Product(models.Model):
     
     def get_absolute_url(self):
         return reverse("App_inventory:editproduct", kwargs={"id": self.id})
+    
 
     
 class ProductReturn(models.Model):

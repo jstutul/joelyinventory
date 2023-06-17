@@ -30,5 +30,11 @@ urlpatterns = [
   path('product/barcode',barcodeview,name="barcode"),
   path('product/barcode/image',getbarcodeimage,name="getbarcodeimg"),
   
+  ## sales
+  path('sales',Saleview,name='sale'),
+  path('sale-details/<int:id>',SaleDetailsview,name='saledetails'),
+  path('sale-update/<int:id>',SalesEditview,name='saleedit'),
+  
+  
   
 ]

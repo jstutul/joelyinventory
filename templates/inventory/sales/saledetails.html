@@ -1,0 +1,102 @@
+{% extends 'inventory/base/base.html'%}
+{% load static %}
+{% load custom_filters %}
+{% block main %}
+<div class="container-fluid">
+    <div class="row">
+        {% include 'alert/pop.html'%}
+        <div class="col-lg-12">
+            <div class="card card-block card-stretch card-height print rounded">
+               <div class="card-header d-flex justify-content-between bg-primary header-invoice">
+                    <div class="iq-header-title">
+                        <h4 class="card-title mb-0">Sales Details </h4>
+                    </div>
+               </div>
+               <div class="card-body">
+                    <div class="row">
+                        <div class="col-lg-12">
+                           <div class="table-responsive-sm">
+                                 <table class="table">
+                                    <thead>
+                                        <tr>
+                                            <th scope="col">Order Date</th>
+                                            <th scope="col">Order Status</th>
+                                            <th scope="col">Order ID</th>
+                                            <th scope="col">Billing Address</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                       <tr>
+                                            <td>{{order.created|date}}<br>{{order.created|time}}</td>
+                                            <td>
+                                                {% if order.paymentstatus == 'approve'%}
+                                                <div class="badge badge-success">Approved</div></td>
+                                                {% endif%}
+                                                {% if order.paymentstatus == 'pending'%}
+                                                <div class="badge badge-warning">Pending</div></td>
+                                                {% endif%}
+                                                {% if order.paymentstatus == 'cashondelivery'%}
+                                                <div class="badge badge-danger">COD</div></td>
+                                                {% endif%}
+                                            </td>
+                                            <td>{{order.id}}</td>
+                                            <td>
+                                                <p class="mb-0">
+                                                   Phone: {{order.phone}}<br>
+                                                   Name: {{order.customer}}<br>
+                                                   Address: {{order.address}}
+                                                </p>
+                                            </td>
+                                       </tr>
+                                    </tbody>
+                                 </table>
+                           </div>
+                        </div>
+                     </div>
+                     <div class="row">
+                        <div class="col-sm-12">
+                           <h5 class="mb-3">Order Summary</h5>
+                           <div class="table-responsive-sm">
+                                <table class="table">
+                                    <thead>
+                                       <tr>
+                                             <th class="text-center" scope="col">#</th>
+                                             <th scope="col">Item</th>
+                                             <th class="text-center" scope="col">Quantity</th>
+                                             <th class="text-center" scope="col">Price</th>
+                                             <th class="text-center" scope="col">Totals</th>
+                                       </tr>
+                                    </thead>
+                                    <tbody>
+                                        {% for ord in order.order.product.all%}
+                                            <tr>
+                                                <th class="text-center" scope="row">{{forloop.counter}}</th>
+                                                <td width="60%">
+                                                <h6 class="mb-0">{{ord.product.name}}</h6>
+                                                <p class="mb-0">
+                                                    <span class="badge badge-primary">{{ord.product.color}}</span>
+                                                    <span class="badge badge-warning">{{ord.product.size}}</span>
+                                                </p>
+                                                </td>
+                                                <td class="text-center">{{ord.quantity}}</td>
+                                                <td class="text-center">${{ord.price}}</td>
+                                                <td class="text-center"><b>${{ord.get_total}}</b></td>
+                                            </tr>   
+                                        {% endfor %}  
+                                        <tr>
+                                          <td class="text-right" colspan="4"><h3>Total<h1></td>
+                                          <td class="text-center"><h3>${{order.order.total}}</h3></td>
+                                        </tr>
+                                    </tbody>
+                                    
+                                </table>
+                           </div>
+                        </div>                              
+                    </div>                           
+               </div>
+            </div>
+         </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% endblock %}

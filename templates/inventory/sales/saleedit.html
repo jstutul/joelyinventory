@@ -1,0 +1,70 @@
+{% extends 'inventory/base/base.html'%}
+{% load static %}
+{% load custom_filters %}
+{% block main %}
+<div class="container-fluid add-form-list">
+    <div class="row">
+        <div class="col-sm-8 mx-auto">
+            {% include 'alert/alert.html'%}
+            <div class="card">
+                <div class="card-header d-flex justify-content-between">
+                    <div class="header-title">
+                        <h4 class="card-title">Update Sell Information</h4>
+                    </div>
+                </div>
+                <div class="card-body">
+                    <form action="" method="post" enctype="multipart/form-data">
+                        {% csrf_token %}
+                        <div class="row">
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.order.name }}">Order Name</label>
+                                    {{form.order}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.customer }}">Customer Name</label>
+                                    {{form.customer}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.phone }}">Phone</label>
+                                    {{form.phone}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-12">
+                                <div class="form-group">
+                                    <label for="{{ form.name.address }}">Address</label>
+                                    {{form.address}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.paymentstatus }}">Payment Satus</label>
+                                    {{form.paymentstatus}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.status }}">Satus</label><br>
+                                    {{form.status}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                        </div>                            
+                        <button type="submit" class="btn btn-primary mr-2">Update Sell</button>
+                    </form>
+                </div>
+            </div>
+        </div>
+    </div>
+    <!-- Page end  -->
+</div>
+{% endblock %}

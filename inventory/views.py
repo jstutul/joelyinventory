@@ -5,13 +5,58 @@ from authuser.views import admin_required,staff_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from inventory.models import Product,ProductReturn,Notifications
-from .forms import CategoryForm, ProductForm,ProductReturnForm
+from .forms import CategoryForm, ProductForm,ProductReturnForm,SellUpdateForm
 from django.http import JsonResponse
 from joelypos.utility import *
+from pos.models import Sell,SellOrder
+from datetime import datetime
+from django.db.models import Sum,Avg,Count
+
+
+def get_total_sell_amount():
+    total_sell_amount = Sell.objects.aggregate(total_amount=Sum('order__total'))
+    return total_sell_amount['total_amount']
+
+
 @login_required(login_url='App_Auth:login')
 @admin_required
 def dashboard(request):
-    return render(request,'inventory/index.html')
+    total_peoduct=Product.objects.filter(status=True)
+    total_cost = total_peoduct.aggregate(total_cost=Sum('totalcost'))['total_cost']
+    total_sell=Sell.objects.all()
+    product_stats = total_peoduct.aggregate(total_cost=Sum('totalcost'), total_products=Count('id'))
+    total_cost = product_stats['total_cost']
+    total_products = product_stats['total_products']
+
+    if total_products > 0:
+        average_cost = round(total_cost / total_products, 2)
+    else:
+        average_cost = 0.00
+        
+    average_order = SellOrder.objects.filter(status=True).aggregate(average_total=Avg('total'))
+    average_total = average_order['average_total']
+
+    if average_total is not None:
+        average_total = round(average_total, 2)
+    else:
+        average_total = 0.00    
+    
+    
+    # Get the current year
+    current_year = datetime.now().year
+    average_order = Sell.objects.filter(status=True, created__year=current_year).aggregate(average_total=Avg('order__total'))
+    average_total = average_order['average_total'] or 0.0  # Set default value to 0.0 if average_total is None
+    average_total=round(average_total,2)
+    
+    context={
+        'total_peoduct':total_peoduct.count(),
+        'total_sell':total_sell.count(),
+        'total_sell_amount':get_total_sell_amount(),
+        'total_costing':total_cost,
+        'average_cost':average_cost,
+        'average_total':average_total,
+    }
+    return render(request,'inventory/index.html',context)
 
 
 #get all user list
@@ -455,3 +500,66 @@ def getbarcodeimage(request):
     except:
         data={}
     return JsonResponse(data)
+
+@login_required(login_url='App_Auth:login')
+@staff_required
+def Saleview(request):
+    payment_status = request.GET.get('payment_status', '')
+    start_date     = request.GET.get('start_date', '')
+    end_date       = request.GET.get('end_date', '')
+    
+    std=start_date
+    etd=end_date
+    products = Sell.objects.filter(status=True)
+
+    if payment_status:
+        products = products.filter(paymentstatus=payment_status)
+
+    if start_date:
+        start_date = datetime.strptime(start_date, '%Y-%m-%d').date()
+        products = products.filter(created__date__gte=start_date)
+    if end_date:    
+        end_date = datetime.strptime(end_date, '%Y-%m-%d').date()
+        products = products.filter(created__date__lte=end_date)
+
+    paginator = Paginator(products, 10)  # Show 10 products per page
+    page_number = request.GET.get('page')
+    page_obj = paginator.get_page(page_number)
+
+    context = {
+        'product_list': page_obj,
+        'payment_status': payment_status,
+        'paymentstatus_choices': Sell.PAYMENT_STATUS,
+        'start_date': std,
+        'end_date': etd,
+    }
+    return render(request,'inventory/sales/index.html',context)
+
+@login_required(login_url='App_Auth:login')
+@staff_required
+def SaleDetailsview(request, id):
+    try:
+        order = get_object_or_404(Sell, id=id)
+    except Sell.DoesNotExist:
+        order = None   
+    context = {
+        "order": order,
+    }
+    return render(request, 'inventory/sales/saledetails.html', context)
+
+@login_required(login_url='App_Auth:login')
+@staff_required
+def SalesEditview(request,id):
+    try:
+        sell = Sell.objects.get(id=id)
+        if request.method == 'POST':
+            form = SellUpdateForm(request.POST, instance=sell)
+            if form.is_valid():
+                form.save()
+                messages.success(request, 'Sell data updated successfully.')
+                return redirect('App_inventory:sale')
+        else:
+            form = SellUpdateForm(instance=sell)
+    except:
+        sell={}        
+    return render(request, 'inventory/sales/saleedit.html', {'form': form})

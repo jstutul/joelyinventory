@@ -5389,11 +5389,11 @@ if (jQuery("#editor").length) {
     options = {
       series: [{
         name: "Desktops",
-        data: [17, 23, 15, 28, 22, 32]
+        data: [17, 23, 15, 28, 22, 32,12]
     }],
     colors: ['#32BDEA'],
       chart: {
-      height: 150,
+      height: 110,
       type: 'line',
       zoom: {
         enabled: false
@@ -5431,7 +5431,7 @@ if (jQuery("#editor").length) {
       },
     },
     xaxis: {
-      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun'],
+      categories: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun','July'],
     }
     };
     const chart = new ApexCharts(document.querySelector("#layout1-chart-4"), options);

@@ -1,6 +1,7 @@
 {% extends 'pos/base/base.html'%}
 {% load static %}
 {% block main %}
+{% include 'alert/pop.html'%}
 <div class="content-page">
     <div class="container-fluid">
         <div class="row">
@@ -38,63 +39,76 @@
             </div>
             <div class="col-lg-5">
                 <div class="card">
-                    <div class="card-body p-0">
-                      <table class="table">
-                        <thead>
-                          <tr class="light">
-                            <th>Product</th>
-                            <th>Q</th>
-                            <th>S/C</th>
-                            <th>Price</th>
-                          </tr>
-                        </thead>
-                        <div>
-                        <tbody id="cart-ligt">
-                            
-                        </tbody>
-                      </table>
-                    </div>
-                    <div class="card-footer">
-                      <div class="row">
-                        <div class="col-4 col-sm-4 col-md-4 col-lg-4">
-                            <label for="subtotal">Sub Total</label><br>
-                            <label for="discount">Discount</label><br>
-                            <label for="total">Total</label><br>
-                            <label for="payment">Payment</label>
-                        </div>
-                        <div class="col-8 col-sm-8 col-md-8 col-lg-8">
-                            <div class="input-group input-group-sm mb-1">
-                                <input type="text" class="form-control" id="subtotal" readonly value="0">
+                    <div class="">
+                        <table class="table">
+                            <thead>
+                              <tr>
+                                <th scope="col" width="50%">Product</th>
+                                <th scope="col" width="10%">Size/Color</th>
+                                <th scope="col" width="20%">Quantity</th>
+                                <th scope="col" width="20%">Price</th>
+                              </tr>
+                            </thead>
+                            <tbody id="cart-ligt"></tbody>
+                          </table>
+                          <div class="card-footer">
+                            <div class="row">
+                              <div class="col-4 col-sm-4 col-md-4 col-lg-4">
+                                  <label for="subtotal">Sub Total</label><br>
+                                  <label for="discount">Discount</label><br>
+                                  <label for="total">Total</label><br>
+                                  <label for="payment">Payment</label>
+                              </div>
+                              <div class="col-8 col-sm-8 col-md-8 col-lg-8">
+                                  <div class="input-group input-group-sm mb-1">
+                                      <input type="text" class="form-control" id="subtotal" readonly="" value="0">
+                                  </div>
+                                  <div class="input-group input-group-sm mb-1">
+                                      <input type="text" class="form-control" value="0" id="discount">
+                                  </div>
+                                  <div class="input-group input-group-sm mb-1">
+                                      <input type="text" class="form-control" id="total" readonly="" value="0">
+                                  </div>
+                                  <div class="input-group input-group-sm mb-1">
+                                        <label>
+                                        <input class="" type="radio" name="option" value="card" checked="">
+                                        Card
+                                        </label>
+                                        <label>
+                                        <input class="mx-2" type="radio" name="option" value="cash">
+                                        Cash
+                                        </label>
+                                  </div>
+                              </div>
                             </div>
-                            <div class="input-group input-group-sm mb-1">
-                                <input type="text" class="form-control" id="discount">
+                            <div class="text-rigth d-flex justify-content-end">
+                                <a href="javascript:void(1);" class="btn btn-md btn-warning mx-2" id="btnreset">Reset</a>
+                                <a href="javascript:void(2);" class="btn btn-md btn-primary" id="btnbillgenarate">Bill Generate</a>
                             </div>
-                            <div class="input-group input-group-sm mb-1">
-                                <input type="text" class="form-control" id="total" readonly value="0">
-                            </div>
-                            <div class="input-group input-group-sm mb-1">
-                                <label>
-                                <input class="" type="radio" name="option" value="option1" checked>
-                                Card
-                                </label>
-                                <label>
-                                <input class="mx-2" type="radio" name="option" value="option2">
-                                Cash
-                                </label>
-                                <label>
-                                <input class="mx-2" type="radio" name="option" value="option3">
-                                Due
-                                </label>
-                            </div>
-                        </div>
-                      </div>
-                      <div class="text-center">
-                        <a href="#" class="btn btn-md btn-primary">Bill Generate</a>
-                      </div>
+                          </div>
                     </div>
                 </div>
             </div>
         </div>
     </div>
 </div>
+
+<!-- Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header" style="background:red;">
+          <h5 class="modal-title" style="color:white;" id="errorModalLabel">Error</h5>
+          <button type="button" style="color:#000;"class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="text-center" id="errorMessage"></p>
+        </div>
+      </div>
+    </div>
+  </div>
+
+  
 {% endblock %}

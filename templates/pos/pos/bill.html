@@ -1,0 +1,92 @@
+{% extends 'pos/base/base.html'%}
+{% load static %}
+{% block main %}
+<div class="container-fluid">
+  <div class="row">                  
+      <div class="col-lg-12" style="margin-top:5%">
+        <div class="card card-block card-stretch card-height print rounded">
+            <div class="card-header d-flex justify-content-between bg-primary header-invoice">
+              <div class="iq-header-title">
+                <h4 class="card-title mb-0">OrderNo#{{order.id}}</h4>
+              </div>
+            </div>
+            <div class="card-body">
+              <div class="row">
+                <div class="col-sm-8">
+                  <h5 class="mb-3">Order Summary</h5>
+                  <div class="table-responsive-sm">
+                    <table class="table">
+                      <thead>
+                          <tr>
+                                <th class="text-center" scope="col">#</th>
+                                <th scope="col">Item</th>
+                                <th class="text-center" scope="col">Quantity</th>
+                                <th class="text-center" scope="col">Price</th>
+                                <th class="text-center" scope="col">Totals</th>
+                          </tr>
+                      </thead>
+                        <tbody>
+                          {% for ord in order.product.all%}
+                            <tr>
+                              <th class="text-center" scope="row">{{forloop.counter}}</th>
+                              <td width="60%">
+                                <h6 class="mb-0">{{ord.product.name}}</h6>
+                                <p class="mb-0">
+                                  <span class="badge badge-primary">{{ord.product.color}}</span>
+                                  <span class="badge badge-warning">{{ord.product.size}}</span>
+                                </p>
+                              </td>
+                              <td class="text-center">{{ord.quantity}}</td>
+                              <td class="text-center">${{ord.price}}</td>
+                              <td class="text-center"><b>${{ord.get_total}}</b></td>
+                            </tr>   
+                          {% endfor %}  
+                            <tr>
+                              <td class="text-right" colspan="4"><h1>Total<h1/></td>
+                              <td class="text-center"><b>${{order.total}}</b></td>
+                            </tr>
+                        </tbody>
+                    </table>
+                  </div>
+                </div>
+                <div class="col-sm-4">
+                    <div class="card">
+                      <div class="card-header d-flex justify-content-between">
+                        <div class="header-title">
+                          <h4 class="">Customer Information</h4>
+                        </div>
+                      </div>
+                      <div class="card-body">
+                        <form method="post">{% csrf_token %}
+                          <div class="form-group">
+                            <label for="cname">Customer Name</label>
+                            <input type="text" class="form-control" name="cname" id="cname" value="" placeholder="Enter Name" required>
+                          </div>
+                          <div class="form-group">
+                            <label for="cemail">Payment Status</label>
+                            <select class="form-control" name="pstatus" id="pstatus">
+                            {% for paymentstatus, paymentstatus_label in status %}
+                              <option value="{{ paymentstatus }}" {% if selected_paymentstatus == paymentstatus %}selected{% endif %}>{{ paymentstatus_label }}</option>
+                            {% endfor %}
+                            </select>
+                          </div>
+                          <div class="form-group">
+                            <label for="cphone">Phone</label>
+                            <input type="number" class="form-control" name="cphone" id="cphone" value="" placeholder="Enter phone" required>
+                          </div>
+                          <label for="caddress">Address</label>
+                          <div class="form-label-group">
+                            <textarea data-length="20" name="caddress" class="form-control" rows="3" placeholder="Enter address"></textarea>
+                          </div>
+                          <button type="submit" class="btn btn-primary">Submit</button>
+                        </form>  
+                      </div>
+                  </div> 
+                </div>                            
+              </div>                           
+            </div>
+        </div>
+      </div>                                    
+  </div>
+</div>  
+{% endblock %}
