@@ -5,19 +5,13 @@ from inventory.models import Product
 
 
 class ProductOrder(models.Model):
-    PAYMENT_STATUS = (
-        ('approve', 'Approve'),
-        ('pending', 'Pending'),
-        ('cashondelivery', 'Cash On Delivery'),
-    )
     seller = models.ForeignKey(User, on_delete=models.DO_NOTHING)
     product = models.ForeignKey(Product, on_delete=models.DO_NOTHING)
-    size = models.CharField(max_length=10)
-    color = models.CharField(max_length=50)
     quantity = models.IntegerField()
     price = models.DecimalField(max_digits=10, decimal_places=2)
     created=models.DateTimeField(auto_now=True)
     updated=models.DateTimeField(auto_now_add=True,auto_now=False)
+    order  = models.BooleanField(default=False)
 
     def __str__(self):
         return f"Product Order - {self.product.name}"
@@ -27,27 +21,19 @@ class ProductOrder(models.Model):
         return self.price*self.quantity
     
     def save(self, *args, **kwargs):
-        # Check if the product with the same color and size is available in stock
-        if self.product.quantity < int(self.quantity) or self.product.color != self.color or self.product.size != self.size:
-            raise ValueError(f"{self.product.name} is not available in the desired color and size or insufficient quantity")
+        print(self.quantity,self.product.quantity)
+        # if self.product.quantity < int(self.quantity):
+        #     raise ValueError(f"{self.product.name} is not available in the desired color and size or insufficient quantity")
         super().save(*args, **kwargs)
-        # Update the quantity of the associated product
-        self.product.quantity -= int(self.quantity)
         self.product.save()
 
 class SellOrder(models.Model):
-    PAYMENT_STATUS = (
-        ('approve', 'Approve'),
-        ('pending', 'Pending'),
-        ('cashondelivery', 'Cash On Delivery'),
-    )
     product=models.ManyToManyField(ProductOrder,related_name="productorder")
     subtotal = models.DecimalField(max_digits=10, decimal_places=2)
     discount = models.DecimalField(max_digits=10, decimal_places=2)
     total = models.DecimalField(max_digits=10, decimal_places=2)
     payment_type = models.CharField(max_length=50)
-    status = models.CharField(max_length=50, choices=PAYMENT_STATUS, default='approve')
-    is_order = models.BooleanField(default=False)
+    is_payment = models.BooleanField(default=False)
     created = models.DateTimeField(auto_now=True)
     updated = models.DateTimeField(auto_now_add=True, auto_now=False)
 
@@ -60,6 +46,14 @@ class SellOrder(models.Model):
 
     def remove_product(self, product_order):
         self.product.remove(product_order)
+        
+    # def sales_remove_product(self, product_order):
+        # self.product.remove(product_order)
+        # product_order.product.quantity -= product_order.quantity
+        # product_order.product.save()
+        # self.subtotal -= product_order.get_total()
+        # self.total -= product_order.get_total()
+        # self.save()    
         
 class Sell(models.Model):
     PAYMENT_STATUS = (
@@ -79,5 +73,16 @@ class Sell(models.Model):
     
     def __str__(self):
         return self.customer
+            
+class SalesReturn(models.Model):
+    user=models.ForeignKey(User,on_delete=models.DO_NOTHING)
+    prodcut=models.ForeignKey(ProductOrder,on_delete=models.DO_NOTHING)
+    quantity=models.IntegerField(default=1)
+    customer=models.CharField(max_length=100)
+    mobile  =models.CharField(max_length=20,blank=True)
+    created=models.DateTimeField(auto_now=True,auto_now_add=False)
+    updated=models.DateTimeField(auto_now=False,auto_now_add=True)  
     
     
+    def __str__(self):
+        return f"{self.customer}"  

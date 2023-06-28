@@ -1,0 +1,144 @@
+{% extends 'pos/base/base.html'%}
+{% load static %}
+{% block main %}
+<style>
+    .quantity-field{
+        width: 44px;
+        border-radius: 10px;
+        text-align: center;
+        height: 25px;
+    }
+</style>    
+{% include 'alert/pop.html'%}
+<div class="content-page">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 my-2 mx-auto card">
+                <div class="row">
+                    <div class="col-lg-12 my-4">
+                        <ul class="list-group">
+                            <li class="list-group-item active">Return Sales Product</li>
+                            <li class="list-group-item">
+                                <form method="get">
+                                    <div class="input-group">
+                                        <input type="text" class="form-control" name="invoice_no" value="{{invoice_no}}" placeholder="Enter Invoice no">
+                                        <div class="input-group-append">
+                                        <button class="btn btn-success" type="submit">
+                                                <i class="ri-search-line font-size-20"></i>
+                                            </button>
+                                        </div>
+                                    </div>
+                                </form>
+                            </li>
+                        </ul>
+                        
+                    </div>
+                    {% if selldata is not None %}
+                    <div class="col-lg-12 mt-2">
+                        <ul class="list-group">
+                            <li class="list-group-item active">Customer Information</li>
+                            <li class="list-group-item"><b>Name           :</b> {{selldata.customer}}</li>
+                            <li class="list-group-item"><b>Phone          :</b> {{selldata.phone}} </li>
+                            <li class="list-group-item"><b>Payment Status :</b> <span class="badge badge-warning">{{selldata.paymentstatus}}</span></li>
+                            <li class="list-group-item"><b>Address        :</b> {{selldata.address}}</li>
+                            <li class="list-group-item"><b>Order Status   :</b> <span class="badge badge-{% if selldata.status %}success{% else %} danger {% endif %}">{{selldata.paymentstatus}}</span></li>
+                        </ul>
+                    </div>
+                    <div class="col-lg-12 mt-2">
+                        <ul class="list-group">
+                            <li class="list-group-item active">Customer Information</li>
+                            {% for item in product_data%}
+                                <li class="list-group-item">
+                                    <div class="row">
+                                        <div class="col-lg-2">
+                                            <img src="{{item.product.image.url}}" class="mr-3 avatar-70 img-fluid rounded" width="50"/>
+                                        </div>
+                                        <div class="col-lg-9">
+                                            <p>{{item.product.name}}</p>
+                                            <p>
+                                                <span class="badge badge-primary">{{item.product.category}}</span>
+                                                <span class="badge badge-warning">{{item.product.color}}</span>
+                                                <span class="badge badge-success">{{item.product.size}}</span>
+                                                <span class="badge badge-secondary">Price : {{item.sell_price }}</span>
+                                                <span class="badge badge-danger">Quantity : {{item.quantity}}</span>
+                                                <span class="badge badge-light">Date : {{selldata.created}}</span>
+                                                <span><input class="quantity-field" type="number" min="1" max="{{item.quantity}}" oninput="limitValue(this)" value="1" /></span>
+                                            </p>
+                                        </div>
+                                        <div class="col-lg-1">
+                                            <div class="custom-control custom-checkbox custom-checkbox-color-check custom-control-inline">
+                                                <input type="checkbox" class="custom-control-input bg-primary" value="{{item.product.id}}" name="sellproduct" id="customCheck-{{item.product.id}}">
+                                                <label class="custom-control-label" for="customCheck-{{item.product.id}}"></label>
+                                            </div>
+                                        </div>
+                                    </div>
+                                </li>
+                            {% endfor %}
+                        </ul> 
+                    </div>
+                    {% endif %}
+                </div> 
+                {% if selldata is not None %}
+                        <div class="row px-2 my-2">
+                            <div class="col-lg-4 mx-auto px-2 text-center">
+                                <button type="submit" class="btn btn-primary float-rigth" id="returnprodcut"> Return Product</button> 
+                            </div>
+                        </div>
+               {% endif %}
+            </div>
+        </div>
+    </div>
+</div> 
+{% endblock %} 
+
+
+{% block js%}
+<!-- Your HTML code... -->
+
+<script>
+    var sell_id = "{{ selldata.id }}";
+    $(document).on('click', '#returnprodcut', function() {
+        var selectedCheckboxes = [];
+        $('input[name="sellproduct"]:checked').each(function() {
+            var quantityField = $($(this)).closest('.row').find('.quantity-field');
+            item={"pid":$(this).val(),"q":quantityField.val()}
+            //selectedCheckboxes.push($(this).val());
+            selectedCheckboxes.push(item);
+        });
+        console.log(selectedCheckboxes);
+        if (selectedCheckboxes.length < 1) {
+            alert('Please select at least one checkbox.');
+            return false;
+        }
+        $.ajax({
+            url: "additem",
+            type: "POST",
+            data: JSON.stringify({ sid: sell_id, sellproduct: selectedCheckboxes }),
+            contentType: "application/json",
+            success: function(response) {
+                $.alert.open('error', 'Product Return Successfully');
+                setTimeout(function() {
+                    window.location.reload();
+                }, 2000);
+            },
+            error: function(xhr, status, error) {
+                alert(2);
+            }
+        });
+    });
+    function limitValue(input) {
+        var minValue = parseInt(input.min);
+        var maxValue = parseInt(input.max);
+        var enteredValue = parseInt(input.value);
+        console.log(1);
+        if (isNaN(enteredValue)) {
+          input.value = minValue;
+        } else if (enteredValue < minValue) {
+          input.value = minValue;
+        } else if (enteredValue > maxValue) {
+          input.value = maxValue;
+        }
+    }
+</script>
+  
+{% endblock %}  

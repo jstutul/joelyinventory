@@ -5,7 +5,7 @@ from authuser.views import admin_required,staff_required
 from django.contrib import messages
 from django.core.paginator import Paginator
 from inventory.models import Product,ProductReturn,Notifications
-from .forms import CategoryForm, ProductForm,ProductReturnForm,SellUpdateForm
+from .forms import ProductForm,ProductReturnForm,SellUpdateForm
 from django.http import JsonResponse
 from joelypos.utility import *
 from pos.models import Sell,SellOrder
@@ -33,7 +33,7 @@ def dashboard(request):
     else:
         average_cost = 0.00
         
-    average_order = SellOrder.objects.filter(status=True).aggregate(average_total=Avg('total'))
+    average_order = SellOrder.objects.filter(is_payment=True).aggregate(average_total=Avg('total'))
     average_total = average_order['average_total']
 
     if average_total is not None:
@@ -79,7 +79,6 @@ def userlist(request):
         if search_usertype=="3":
             users=users.filter(is_active=True,is_staff=False)    
     if search_status:
-        print("=",search_status)
         if search_status=="1":
             users=users.filter(is_active=True)
         if search_status=="2":
@@ -180,7 +179,6 @@ def edituserdata(request,id):
         status = request.POST.get('my_userstatus')
         user_type = request.POST.get('my_usertype')
         
-        print(user,status,user_type)
         user.first_name=first_name
         user.last_name=last_name
         user.email=email
@@ -467,7 +465,6 @@ def editreturnproduct(request,id):
 @admin_required
 def getproductquantity(request):
     product_id = request.GET.get('id')
-    print(product_id)
     try:
         product = get_object_or_404(Product, id=product_id)
         data = {
@@ -492,7 +489,6 @@ def getbarcodeimage(request):
     product_id = request.GET.get('id')
     try:
         product = get_object_or_404(Product, id=product_id)
-        print(product)
         data = {
             'pid': product.id,
             'barcode': "/"+str(product.barcode).replace("\\","/"),
@@ -563,3 +559,27 @@ def SalesEditview(request,id):
     except:
         sell={}        
     return render(request, 'inventory/sales/saleedit.html', {'form': form})
+
+
+#notification
+def NotificationView(request):
+    try:
+        noti=Notifications.objects.all()
+    except:
+        return redirect('App_inventory:dashboard')
+    
+    context={
+        'notification':noti,
+    }
+    return render(request,'inventory/notification/index.html',context)
+
+
+def NotificationDeleteView(request,id):
+    try:
+        noti=get_object_or_404(Notifications,id=id)
+        noti.delete()
+        messages.success(request,'notification deleted')
+    except:
+        messages.info(request,'someting went wrong')
+    return redirect('App_inventory:notifications')
+    

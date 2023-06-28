@@ -1,6 +1,7 @@
 import os
+import uuid
 from io import BytesIO
-from barcode import ITF
+from barcode import ITF,EAN8
 from django.db import models
 from datetime import datetime
 from PIL import Image,ImageOps
@@ -11,8 +12,9 @@ from django.core.mail import send_mail
 from django.core.mail import EmailMessage
 from django.contrib.auth.models import User
 from django.core.validators import MinValueValidator
-
-
+from django.shortcuts import HttpResponse
+from django.db.models.signals import pre_save
+from django.dispatch import receiver
 
 
 def product_image_path(instance, filename):
@@ -64,35 +66,18 @@ class Product(models.Model):
     status=models.BooleanField(default=True)
     qcode=models.CharField(max_length=20,default="",blank=True)
     barcode=models.ImageField(blank=True,null=True,upload_to='product_barcode/')
-    
+    uuid = models.UUIDField(default=uuid.uuid4, editable=False, unique=True)
+
     def save(self, *args, **kwargs):
         if not self.id:
             super(Product, self).save(*args, **kwargs)
 
         self.totalcost = self.productioncost + self.transportcost + self.additionalcost
-        code = ITF(str(self.id**2+10000), writer=ImageWriter())
-        
-        image_width = 288  # Assuming 300 DPI resolution
-        image_height = 240
-    
-        buffer = BytesIO()
-        code.write(buffer)
-        buffer.seek(0)  # Reset the buffer's position to the beginning
-        barcode_image = Image.open(buffer)
-
-        barcode_image = ImageOps.fit(barcode_image, (image_width, image_height), Image.ANTIALIAS)
-        # Create the 'product_barcode' directory if it doesn't exist
-        directory = 'media/product_barcode'
-        if not os.path.exists(directory):
-            os.makedirs(directory)
-
-        filename = f"{self.id}_isbn.png"
-        barcode_path = os.path.join(directory, filename)
-        barcode_image.save(barcode_path, 'PNG')
-        self.barcode.name = barcode_path
         super(Product, self).save(*args, **kwargs)
-       
+
+
         
+     
     def delete(self, *args, **kwargs):
         # Delete the barcode image before deleting the product
         self.delete_barcode_image()
@@ -109,9 +94,36 @@ class Product(models.Model):
     
     def get_absolute_url(self):
         return reverse("App_inventory:editproduct", kwargs={"id": self.id})
-    
 
-    
+@receiver(pre_save, sender=Product)
+def generate_product_barcode(sender, instance, **kwargs):
+    if not instance.barcode:
+        code = EAN8(str(instance.uuid.int), writer=ImageWriter())
+        image_width = 288
+        image_height = 140
+        buffer = BytesIO()
+        code.write(buffer)
+        buffer.seek(0)
+        barcode_image = Image.open(buffer)
+
+        # Calculate the space height and create a new blank image with the desired dimensions
+        space_height = 20  # Adjust this value to set the desired space height
+        new_image_height = barcode_image.height + space_height
+        new_image = Image.new('RGB', (barcode_image.width, new_image_height), color='white')
+
+        # Paste the barcode image onto the new image with space at the top
+        new_image.paste(barcode_image, (0, space_height))
+
+        # Save the modified barcode image
+        directory = 'media/product_barcode'
+        if not os.path.exists(directory):
+            os.makedirs(directory)
+        filename = f"{instance.uuid}_barcode.png"
+        barcode_path = os.path.join(directory, filename)
+        new_image.save(barcode_path, 'PNG')
+        instance.barcode.name = barcode_path
+        instance.qcode = code.get_fullcode()
+        instance.save()  
 class ProductReturn(models.Model):
     product=models.ForeignKey(Product,on_delete=models.DO_NOTHING)
     addedby=models.ForeignKey(User,on_delete=models.DO_NOTHING)
@@ -134,6 +146,8 @@ class Notifications(models.Model):
     
     def __str__(self):
         return str(self.user)    
+    
+    
     def save(self, *args, **kwargs):
         # Call the original save() method
         super().save(*args, **kwargs)

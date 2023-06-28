@@ -35,6 +35,10 @@ urlpatterns = [
   path('sale-details/<int:id>',SaleDetailsview,name='saledetails'),
   path('sale-update/<int:id>',SalesEditview,name='saleedit'),
   
+  ##notification
+  path("notifications",NotificationView,name="notifications"),
+  path("notifications/delete/<int:id>",NotificationDeleteView,name="notificationsdelete"),
+  
   
   
 ]

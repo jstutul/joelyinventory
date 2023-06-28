@@ -1,0 +1,195 @@
+{% extends 'pos/base/base.html'%}
+{% load static %}
+{% block main %}
+{% include 'alert/pop.html'%}
+<div class="content-page">
+    <div class="container-fluid">
+        <div class="row">
+            <div class="col-lg-8 my-2">
+                <div class="row">
+                    <div class="col-lg-12 px-0">
+                        <div class="input-group">
+                            <input type="text" class="form-control" placeholder="Enter Product barcode">
+                            <div class="input-group-append">
+                               <button class="btn btn-success" type="button">
+                                    <i class="ri-search-line font-size-20"></i>
+                                </button>
+                            </div>
+                        </div>
+                    </div>
+                    <div class="col-lg-12 px-0">
+                        <h3>Billing Details</h3>
+                        <div class="card">
+                            <div class="">
+                                <table class="table">
+                                    <thead>
+                                      <tr>
+                                        <th scope="col" width="60%">Product</th>
+                                        <th scope="col" width="10%">Size</th>
+                                        <th scope="col" width="10%">Size/Color</th>
+                                        <th scope="col" width="10%">Quantity</th>
+                                        <th scope="col" width="10%">Price</th>
+                                      </tr>
+                                    </thead>
+                                    <tbody id="">
+                                        <tr>
+                                            <td>
+                                                <button class="btn btn-danger btn-delete btn-sm">X</button>
+                                                Product Name First Product
+                                            <td>
+                                                <span class="badge badge-primary ml-1">Red</span>
+                                            </td>
+                                            <td>
+                                                <span class="badge badge-warning ml-1">Red</span>
+                                            </td>
+                                            <td width="10%">
+                                                <input type="text" id="" value="" style="height:30px;" class="form-control price-input">
+                                            </td>
+                                            <td width="20%">
+                                                <input type="text" id="" value="" style="height:30px;" class="form-control price-input">
+                                            </td>
+                                        </tr>
+                                    </tbody>
+                                </table>
+                                <div class="">
+                                    <div class="card-footer">
+                                      <div class="row">
+                                        <div class="col-lg-4">
+                                            <label for="subtotal">Sub Total</label><br>
+                                            <label for="discount">Discount</label><br>
+                                            <label for="total">Total</label><br>
+                                            <label for="payment">Payment</label><br>
+                                            <label for="Status">Status</label>
+                                        </div>
+                                        <div class="col-lg-8">
+                                            <div class="input-group input-group-sm mb-1">
+                                                <input type="text" class="form-control" id="subtotal" readonly="" value="0">
+                                            </div>
+                                            <div class="input-group input-group-sm mb-1">
+                                                <input type="text" class="form-control" value="0" id="discount">
+                                            </div>
+                                            <div class="input-group input-group-sm mb-1">
+                                                <input type="text" class="form-control" id="total" readonly="" value="0">
+                                            </div>
+                                            <div class="input-group input-group-sm mb-1">
+                                                <label>
+                                                <input class="" type="radio" name="option" value="card" checked="">
+                                                Card
+                                                </label>
+                                                <label>
+                                                <input class="mx-2" type="radio" name="option" value="cash">
+                                                Cash
+                                                </label>
+                                            </div>
+                                            <div class="input-group input-group-sm mb-1">
+                                                <label>
+                                                <input class="" type="radio" name="option" value="card" checked="">
+                                                Approve
+                                                </label>
+                                                <label>
+                                                <input class="mx-2" type="radio" name="option" value="cash">
+                                                Peding
+                                                </label>
+                                            </div>
+                                        </div>
+                                      </div>
+                                      <div class="text-rigth d-flex justify-content-end">
+                                          <a href="javascript:void(1);" class="btn btn-md btn-warning mx-2" id="btnreset">Reset</a>
+                                          <a href="javascript:void(2);" class="btn btn-md btn-primary" id="btnbillgenarate">Bill Generate</a>
+                                      </div>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>  
+                <div class="row my-2" id="productzone" style="height: 500px; overflow-y: auto;"></div>
+            </div>
+            <div class="col-lg-4">
+                <div class="card">
+                    <div class="row p-2">
+                        <div class="col-lg-12">
+                            <h3>Billing Details</h2>
+                            <hr>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                            <label for="customer_name">Customer Name</label>
+                            <input type="text" class="form-control" id="customer_name">
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                            <label for="customer_phone">Customer Phone</label>
+                            <input type="text" class="form-control" id="customer_phone">
+                            </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <div class="form-group">
+                                <label for="customer_address">Address</label>
+                                <textarea class="form-control" id="customer_address" rows="2"></textarea>
+                             </div>
+                        </div>
+                        <div class="col-lg-12">
+                            <button class="btn btn-primary">Bill Genarate</button>
+                        </div>
+
+                    </div>    
+                </div>
+            </div>
+        </div>
+    </div>
+</div>
+
+<!-- Modal -->
+<div class="modal fade" id="errorModal" tabindex="-1" role="dialog" aria-labelledby="errorModalLabel" aria-hidden="true">
+    <div class="modal-dialog" role="document">
+      <div class="modal-content">
+        <div class="modal-header" style="background:red;">
+          <h5 class="modal-title" style="color:white;" id="errorModalLabel">Error</h5>
+          <button type="button" style="color:#000;"class="close" data-dismiss="modal" aria-label="Close">
+            <span aria-hidden="true">&times;</span>
+          </button>
+        </div>
+        <div class="modal-body">
+          <p class="text-center" id="errorMessage"></p>
+        </div>
+      </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.7.0.min.js"></script>
+<script>
+    var load="<div style='display: flex;justify-content: center;width: 100%;'><div><img src='{% static 'assets/images/loading.gif'%}'/></div></div>";
+    var noload="<div style='display: flex;justify-content: center;align-items:center;width: 100%;'><div><h1>No Product Found</h1></div></div>";
+    $(document).ready(function(){
+        var barcode = "";
+        var ajaxInProgress = false; // Flag variable to track AJAX request status
+      
+        $(document).keydown(function(e){
+            var code = (e.keyCode ? e.keyCode : e.which);
+            if (code >= 48 && code <= 57) {
+                barcode += String.fromCharCode(code);
+            }
+            if (parseInt(barcode) > 10000000 && parseInt(barcode) < 20000000 && !ajaxInProgress) {
+                console.log(barcode);
+                ajaxInProgress = true; // Set the flag to indicate an AJAX request is in progress
+                $.ajax({
+                    url: '{% url 'App_pos:getproductapi' %}',
+                    method: 'GET',
+                    dataType: 'json',
+                    data: 'barcode=' + barcode + '&category=' + "" + '&color=' + "" + '&size=' + "",
+                    success: function(response) {
+                        barcode = "";
+                        var data = JSON.parse(response.products);
+                        console.log(data);
+                    },
+                    error: function(jqXHR, textStatus, errorThrown) {
+                        alert('AJAX Error: ' + textStatus, errorThrown);
+                        ajaxInProgress = false; // Reset the flag in case of an error
+                    }
+                });
+            }
+        });
+    });
+</script>
+{% endblock %}

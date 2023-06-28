@@ -2,6 +2,12 @@
 {% load static %}
 {% load custom_filters %}
 {% block main %}
+<style>
+    #barcodeimg {
+        width: 3in;
+        height: 2in;
+    }
+</style>
 <div class="container-fluid add-form-list">
     <div class="row">
         <div class="col-sm-8 mx-auto">
@@ -37,12 +43,29 @@
                             </div> 
                         </div>
                     </div>                            
-                    <button class="btn btn-primary mr-2" id="downloadButton">Download Now</button>
+                    <button class="btn btn-primary mr-2" onclick="printBarcode()">Print Now</button>
                 </div>
             </div>
         </div>
     </div>
     <!-- Page end  -->
 </div>
-   
+<script>
+    function printBarcode() {
+        var barcodeImage = document.getElementById('barcodeimg');
+        
+
+        var printWindow = window.open('', '');
+        printWindow.document.write('<html><body style="margin: 0;">');
+        printWindow.document.write('<img src="' + barcodeImage.src + '" style="width: 100%; height: 100%;">');
+        printWindow.document.write('</body></html>');
+        printWindow.document.close();
+
+        setTimeout(function() {
+            printWindow.print();
+            printWindow.close();
+            barcodeImage.style.display = 'none'; // Hide the barcode image again
+        }, 500); // Delay printing for half a second to ensure the image is loaded
+    }
+</script>
 {% endblock %}

@@ -40,9 +40,13 @@
                               <td class="text-center">${{ord.price}}</td>
                               <td class="text-center"><b>${{ord.get_total}}</b></td>
                             </tr>   
-                          {% endfor %}  
+                          {% endfor %} 
+                            <tr class="">
+                              <td class="text-right" colspan="4"><h4>Discount</h4></td>
+                              <td class="text-center"><b class="text-danger">${{order.discount}}</b></td>
+                            </tr>
                             <tr>
-                              <td class="text-right" colspan="4"><h1>Total<h1/></td>
+                              <td class="text-right" colspan="4"><h2>Total</h2></td>
                               <td class="text-center"><b>${{order.total}}</b></td>
                             </tr>
                         </tbody>

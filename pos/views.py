@@ -5,10 +5,10 @@ from pos.models import ProductOrder
 from django.core import serializers
 from django.http import JsonResponse
 from inventory.models import Product
-from pos.models import SellOrder,Sell
+from pos.models import SellOrder,Sell,SalesReturn
 from django.views.decorators.csrf import csrf_exempt
 from django.contrib.auth.decorators import login_required
-from django.shortcuts import render,get_object_or_404,redirect
+from django.shortcuts import render,get_object_or_404,redirect,HttpResponse
 
 # Create your views here.
 
@@ -20,7 +20,7 @@ def poshome(request):
         'size_choices': Product.SIZE_CHOICES,
     }
     return render(request,'pos/pos/index.html',context)
-
+import uuid
 @login_required(login_url='App_Auth:login')
 def get_product_api(request):
     barcode = request.GET.get('barcode')
@@ -30,8 +30,12 @@ def get_product_api(request):
     print(category,color,size,barcode)
     products = Product.objects.all()
     if barcode:
-        barcode = math.sqrt(int(barcode) - 10000)
-        products = products.filter(id=barcode)
+        #barcode =int(barcode) - 10000000
+        # print(barcode)
+        print(barcode)
+        #formatted_uuid = uuid.UUID(barcode)
+        print("<",print)
+        products = products.filter(qcode=barcode)
     if category:
         products = products.filter(category=category)
     if color:
@@ -84,15 +88,22 @@ def billview(request,id):
                 paymentstatus=paymentStatus
             )
             selldata.save()
+            order.is_payment=True
+            for ord in order.product.all():
+                ord.order=True
+                ord.product.quantity=int(ord.product.quantity)-int(ord.quantity)
+                ord.save()
+            order.save()
             messages.success(request,"Order Completed")
             return redirect('App_pos:poshome')
             
-        context={
-            'order':order,
-            'status': Sell.PAYMENT_STATUS,
-        }
     except:
-        pass
+        return HttpResponse("<h1>Something Went Wrong</h1>")
+    
+    context={
+        'order':order,
+        'status': Sell.PAYMENT_STATUS,
+    }
     return render(request,'pos/pos/bill.html',context)
 
 
@@ -113,8 +124,6 @@ def orderview(request):
             product_order = ProductOrder(
                 seller=request.user,
                 product_id=product_data["id"],
-                size=product_data["size"],
-                color=product_data["color"],
                 quantity=product_data["quantity"],
                 price=product_data["price"],
             )
@@ -130,3 +139,113 @@ def orderview(request):
         return JsonResponse(response_data, status=200)
 
     return JsonResponse({}, status=405)
+#sales return api
+
+def salesreturnview(request):
+    try:
+        invoice_no = request.GET.get('invoice_no', '')
+        sell=None
+        product_data = []
+        if invoice_no:
+            sell = get_object_or_404(Sell, id=invoice_no)
+            product_orders = sell.order.product.all()
+            for product_order in product_orders:
+                product_data.append({
+                    'product':product_order.product,
+                    'product_name': product_order.product.name,
+                    'quantity': product_order.quantity,
+                    'sell_price': product_order.price
+                })    
+    except:
+        return HttpResponse("<h1>Something Went Wrong</h1>")  
+    context={
+        'selldata':sell,
+        'invoice_no':invoice_no,
+        'product_data':product_data,
+    }    
+    return render(request,'pos/salesreturn/salesreturn.html',context)
+
+
+@csrf_exempt
+# def save_sales_return(request):
+    
+#     if request.method == 'POST':
+#         data = json.loads(request.body)
+#         sell_id = data.get('sid', 0)
+#         sellproduct = data.get('sellproduct', [])
+        
+#         sell_data = Sell.objects.get(id=sell_id)
+#         order_list = sell_data.order.product.filter(product__id__in=sellproduct)
+        
+#         subtotal = 0
+#         for order in order_list:
+#             subtotal += order.quantity*order.price
+#             order.product.quantity += order.quantity
+#             order.product.save()
+#             order.delete()
+        
+#         sell_data.order.subtotal -= subtotal
+#         sell_data.order.total = sell_data.order.subtotal - sell_data.order.discount
+#         sell_data.order.save()
+#         return JsonResponse({}, status=200)
+#     else:
+#         return JsonResponse({}, status=400)
+    
+  
+def save_sales_return(request):
+    if request.method == 'POST':
+        data = json.loads(request.body)
+        sell_id = data.get('sid', 0)
+        sellproduct = data.get('sellproduct', [])
+        
+        sell_data = Sell.objects.get(id=sell_id)
+        
+        subtotal = 0
+        for item in sellproduct:
+            pid = item.get('pid', 0)
+            quantity = int(item.get('q', 1))
+            
+            # try:
+            order = sell_data.order.product.get(product__id=pid)
+            product = order.product
+            
+            if quantity >= product.quantity:
+                # Remove the product from the order and delete it
+                subtotal += order.quantity * order.price
+                # product.quantity = 0
+                # product.save()
+                order.delete()
+            else:
+                # Decrease the quantity of the product in the order
+                subtotal += quantity * order.price
+                product.quantity += quantity
+                product.save()
+                order.quantity -= quantity
+                order.save()
+                
+                if order.quantity <= 0:
+                    order.delete()
+                # Insert or update SalesReturn
+                # Insert or update SalesReturn
+                sales_return, _ = SalesReturn.objects.get_or_create(
+                    user=request.user,
+                    prodcut=order,
+                    defaults={
+                        'quantity': quantity,
+                        'customer': sell_data.customer,
+                        'mobile': sell_data.phone
+                    }
+                )
+                if not _:
+                    sales_return.quantity += quantity
+                    sales_return.save()    
+            # ecept Order.DoesNotExist:
+            #     pass
+        
+        sell_data.order.subtotal -= subtotal
+        sell_data.order.total = sell_data.order.subtotal - sell_data.order.discount
+        sell_data.order.save()
+        
+        return JsonResponse({}, status=200)
+    else:
+        return JsonResponse({}, status=400)

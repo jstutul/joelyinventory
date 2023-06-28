@@ -218,7 +218,7 @@
                                                         {% endfor %}
                                                     </div>
                                                     {% if notifications.count > 0 %}
-                                                    <a class="right-ic btn btn-primary btn-block position-relative p-2" href="#"
+                                                    <a class="right-ic btn btn-primary btn-block position-relative p-2" href="{% url 'App_inventory:notifications'%}"
                                                         role="button">
                                                         View All
                                                     </a>
@@ -405,6 +405,7 @@
             var productId = $(this).val();
             if (productId=="-1"){
                 alert("Select product first");
+                $("#barcodeimg").attr("src","");
                 return false;
             }
             $.ajax({
@@ -412,6 +413,7 @@
             data: { id: productId },
             dataType: 'json',
             success: function(response) {
+                //$("#barcodeimg").attr("src","");
                 $("#barcodeimg").attr("src",response.barcode);
             },
             error: function(xhr, status, error) {
