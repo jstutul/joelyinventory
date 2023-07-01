@@ -4,7 +4,14 @@
     <script src="{% static 'assets/js/jquery.js'%}"></script>
     <script src="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.js"></script>
     <script>
+    {% if message.tags == 'success' %}
         toastr.success("{{message}}");
+    {% elif message.tags == 'error' %}
+        toastr.error("{{message}}");
+    {% else %}
+        toastr.error("{{message}}");
+    {% endif %}
+        
     </script>
     <link rel="stylesheet" href="//cdnjs.cloudflare.com/ajax/libs/toastr.js/latest/toastr.min.css" />
     {% endfor %}

@@ -11,7 +11,7 @@ from joelypos.utility import *
 from pos.models import Sell,SellOrder
 from datetime import datetime
 from django.db.models import Sum,Avg,Count
-
+from django.db import IntegrityError
 
 def get_total_sell_amount():
     total_sell_amount = Sell.objects.aggregate(total_amount=Sum('order__total'))
@@ -351,15 +351,23 @@ def restoreremovedproductview(request):
 @login_required(login_url='App_Auth:login')
 @admin_required
 def deleteremovedproductview(request):
-    if request.method == 'POST':
-        id=request.POST.get("id")
-        product = get_object_or_404(Product,id=id)
-        product.delete()
-        messages.success(request,"product deleted successfully")
-    else:        
-        messages.error(request,"Somethig went wrong")
+    try:
+        if request.method == 'POST':
+            id = request.POST.get("id")
+            product = get_object_or_404(Product, id=id)
+            print(product)
+            product.delete()
+            messages.success(request, "Product deleted successfully")
+        else:        
+            messages.error(request, "Something went wrong")
+    except IntegrityError as e:
+        messages.error(request, "Cannot delete the product due to existing references.")
+        return redirect('App_inventory:restoreproducts')
+    except Exception as ex:
+        messages.error(request, "An error occurred while deleting the product.")
+        return HttpResponse(str(ex))
     return redirect('App_inventory:restoreproducts')
-
+    
 @login_required(login_url='App_Auth:login')
 @admin_required
 def returnproductview(request):

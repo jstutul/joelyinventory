@@ -20,7 +20,7 @@ urlpatterns = [
   path('product/restore', restoreremovedproductview, name='backrestoreproduct'),
   path('product/delete', deleteremovedproductview, name='deleteproduct'),
   ##end
-  
+   
   ##return product part
   path('product/quantity/', getproductquantity, name='pquantity'),
   path('return/products',returnproductview,name="returnproduct"),

@@ -46,14 +46,7 @@ class SellOrder(models.Model):
 
     def remove_product(self, product_order):
         self.product.remove(product_order)
-        
-    # def sales_remove_product(self, product_order):
-        # self.product.remove(product_order)
-        # product_order.product.quantity -= product_order.quantity
-        # product_order.product.save()
-        # self.subtotal -= product_order.get_total()
-        # self.total -= product_order.get_total()
-        # self.save()    
+         
         
 class Sell(models.Model):
     PAYMENT_STATUS = (
