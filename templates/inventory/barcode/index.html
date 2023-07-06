@@ -10,17 +10,17 @@
 </style>
 <div class="container-fluid add-form-list">
     <div class="row">
-        <div class="col-sm-8 mx-auto">
+        <div class="col-sm-6 mx-auto">
             {% include 'alert/alert.html'%}
-            <div class="card">
-                <div class="card-header d-flex justify-content-between">
+            <div class="card blur-shadow shadow-showcase">
+                <div class="card-header d-flex justify-content-between bg-primary rounded-top">
                     <div class="header-title">
-                        <h4 class="card-title">Print Product Barcode</h4>
+                        <h4 class="text-white">Print Product Barcode</h4>
                     </div>
                 </div>
                 <div class="card-body">
                     <div class="row">
-                        <div class="col-md-9">
+                        <div class="col-md-12">
                             <div class="form-group">
                                 <label>Product Name</label>
                                 <select id="barcode_product_id" class="form-control">
@@ -53,19 +53,22 @@
 <script>
     function printBarcode() {
         var barcodeImage = document.getElementById('barcodeimg');
-        
-
+      
         var printWindow = window.open('', '');
-        printWindow.document.write('<html><body style="margin: 0;">');
-        printWindow.document.write('<img src="' + barcodeImage.src + '" style="width: 100%; height: 100%;">');
+        printWindow.document.write('<html><head><style>@media print { @page { size: auto; margin: 0; } body { margin: 0; } }</style></head><body>');
+        printWindow.document.write('<img src="' + barcodeImage.src + '" style="width: 3in; height: 2in;">');
         printWindow.document.write('</body></html>');
         printWindow.document.close();
-
+      
         setTimeout(function() {
-            printWindow.print();
-            printWindow.close();
-            barcodeImage.style.display = 'none'; // Hide the barcode image again
-        }, 500); // Delay printing for half a second to ensure the image is loaded
+          printWindow.focus();
+          printWindow.print();
+          printWindow.close();
+        }, 500);
     }
+      
+
+    
+      
 </script>
 {% endblock %}

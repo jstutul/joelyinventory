@@ -3,169 +3,170 @@
 {% load custom_filters %}
 {% block main %}
 <div class="container-fluid">
-    <div class="row">
+    <div class="row mb-4">
         {% include 'alert/pop.html'%}
         <div class="col-lg-12">
-            <div class="d-flex flex-wrap flex-wrap align-items-center justify-content-between mb-4">
-                <div>
-                    <h4 class="mb-3">Sales List</h4>
-                </div>
-            </div>
-        </div>
-        <div class="col-lg-12">
-            <div class="card px-4">
-                <form method="get">
-                    <div class="row">
-                        <div class="col-lg-2">
-                            <div class="form-group">
-                                <label>Start Date</label>
-                                <input type="date" class="form-control" value="{{start_date}}" name="start_date" id="start_date">
-                            </div>
-                        </div>
-                        <div class="col-lg-2">
-                            <div class="form-group">
-                                <label>End Date</label>
-                                <input type="date" class="form-control" value="{{end_date}}" name="end_date" id="end_date">
-                            </div>
-                        </div>
-                        <div class="col-lg-2">
-                            <div class="form-group">
-                                <label>Payment Status</label>
-                                <select class="form-control mb-3" name="payment_status">
-                                    <option selected="" value="">Select</option>
-                                    {% for choice,choice_label in paymentstatus_choices %}
-                                        <option value="{{ choice }}" {% if payment_status == choice %}selected{% endif %}>{{ choice_label }}</option>
-                                    {% endfor %}
-                                </select>
-                            </div>
-                        </div>
-                        <div class="col-lg-2">
-                            <div class="form-group">
-                                <label class="text-white">search on this data</label>
-                                <button class="btn btn-primary">Search</button>
-                            </div>
-                        </div>                
+            <ul class="list-group">
+                <li class="list-group-item active d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-white">Sales List ({{product_list.paginator.count}})</h4>
                     </div>
-                </form>
-            </div>
-        </div>
-        <div class="col-lg-12">
-            <div class="table-responsive rounded mb-3">
-            <table class="table table-hover">
-                <thead class="bg-white text-uppercase">
-                    <tr class="ligth ligth-data">
-                        <th>Date</th>
-                        <th>Seller</th>
-                        <th>Customer</th>
-                        <th>Total</th>
-                        <th>Discount</th>
-                        <th>Paid</th>
-                        <th>Status</th>
-                        <th>Method</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody class="ligth-body">
-                    {% for product in product_list%}
-                    <tr>
-                        <td>{{product.created|date}}</td>
-                        <td>{{product.user}}</td>
-                        <td>{{product.customer}}</td>
-                        <td>{{product.order.total}}</td>
-                        <td>{{product.order.discount}}</td>
-                        <td>
-                            {% if product.paymentstatus == 'approve'%}
-                            <div class="badge badge-success">Approved</div></td>
-                            {% endif%}
-                            {% if product.paymentstatus == 'pending'%}
-                            <div class="badge badge-warning">Pending</div></td>
-                            {% endif%}
-                            {% if product.paymentstatus == 'cashondelivery'%}
-                            <div class="badge badge-danger">COD</div></td>
-                            {% endif%}
-                        <td>
-                            {% if product.status %}
-                            <div class="badge badge-success">Confirm</div></td>
-                            {% else %}
-                            <div class="badge badge-danger">Not Confirm</div></td>
-                            {% endif%}
-                        </td>
-                        <td>
-                            {% if product.order.payment_type == 'card' %}
-                            <div class="badge badge-success">Card</div></td>
-                            {% else %}
-                            <div class="badge badge-warning">Cash</div></td>
-                            {% endif%}
-                        </td>
-                        <td>
-                            <div class="d-flex align-items-center list-action">
-                                <a class="badge bg-success mr-2" href="{% url 'App_inventory:saledetails' product.id %}">
-                                    <i class="ri-search-eye-line mr-0"></i>
-                                </a>
-                                <a class="badge bg-warning mr-2" pid="{{product.id}}" href="{% url 'App_inventory:saleedit' product.id %}">
-                                    <i class="ri-pencil-line mr-0"></i>
-                                </a>
+                </li>
+                <li class="list-group-item">
+                    <form method="get">
+                        <div class="row">
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label>Start Date</label>
+                                    <input type="date" class="form-control" value="{{start_date}}" name="start_date" id="start_date">
+                                </div>
                             </div>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
-            </div>
-            {% if product_list.has_other_pages %}
-            <nav aria-label="...">
-                <ul class="pagination justify-content-end">
-                    {% if product_list.has_previous %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page=1" aria-label="First">
-                                <span aria-hidden="true">&laquo; first</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ product_list.previous_page_number }}" aria-label="Previous">
-                                <span aria-hidden="true">Previous</span>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Previous</span>
-                        </li>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label>End Date</label>
+                                    <input type="date" class="form-control" value="{{end_date}}" name="end_date" id="end_date">
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label>Payment Status</label>
+                                    <select class="form-control mb-3" name="payment_status">
+                                        <option selected="" value="">Select</option>
+                                        {% for choice,choice_label in paymentstatus_choices %}
+                                            <option value="{{ choice }}" {% if payment_status == choice %}selected{% endif %}>{{ choice_label }}</option>
+                                        {% endfor %}
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label class="text-white">search on this data</label>
+                                    <button class="btn btn-primary">Search</button>
+                                </div>
+                            </div>                
+                        </div>
+                    </form>
+                </li>
+                <li class="list-group-item p-0">
+                    <div class="table-responsive rounded mb-3">
+                        <table class="table table-hover">
+                            <thead class="bg-white text-uppercase">
+                                <tr class="ligth ligth-data">
+                                    <th>Date</th>
+                                    <th>Seller</th>
+                                    <th>Customer</th>
+                                    <th>Total</th>
+                                    <th>Discount</th>
+                                    <th>Paid</th>
+                                    <th>Status</th>
+                                    <th>Method</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="ligth-body">
+                                {% for product in product_list%}
+                                <tr>
+                                    <td>{{product.created|date}}</td>
+                                    <td>{{product.user}}</td>
+                                    <td>{{product.customer}}</td>
+                                    <td>{{product.order.total}}</td>
+                                    <td>{{product.order.discount}}</td>
+                                    <td>
+                                        {% if product.paymentstatus == 'approve'%}
+                                        <div class="badge badge-success">Approved</div></td>
+                                        {% endif%}
+                                        {% if product.paymentstatus == 'pending'%}
+                                        <div class="badge badge-warning">Pending</div></td>
+                                        {% endif%}
+                                        {% if product.paymentstatus == 'cashondelivery'%}
+                                        <div class="badge badge-danger">COD</div></td>
+                                        {% endif%}
+                                    <td>
+                                        {% if product.status %}
+                                        <div class="badge badge-success">Confirm</div></td>
+                                        {% else %}
+                                        <div class="badge badge-danger">Not Confirm</div></td>
+                                        {% endif%}
+                                    </td>
+                                    <td>
+                                        {% if product.order.payment_type == 'card' %}
+                                        <div class="badge badge-success">Card</div></td>
+                                        {% else %}
+                                        <div class="badge badge-warning">Cash</div></td>
+                                        {% endif%}
+                                    </td>
+                                    <td>
+                                        <div class="d-flex align-items-center list-action">
+                                            <a class="badge bg-success mr-2" href="{% url 'App_inventory:saledetails' product.id %}">
+                                                <i class="ri-search-eye-line mr-0"></i>
+                                            </a>
+                                            <a class="badge bg-warning mr-2" pid="{{product.id}}" href="{% url 'App_inventory:saleedit' product.id %}">
+                                                <i class="ri-pencil-line mr-0"></i>
+                                            </a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if product_list.has_other_pages %}
+                    <nav class="m-2">
+                        <ul class="pagination justify-content-end">
+                            {% if product_list.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1" aria-label="First">
+                                        <span aria-hidden="true">&laquo; first</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_list.previous_page_number }}" aria-label="Previous">
+                                        <span aria-hidden="true">Previous</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">Previous</span>
+                                </li>
+                            {% endif %}
+        
+                            {% for page in product_list.paginator.page_range %}
+                                {% if page == product_list.number %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">
+                                            {{ page }}
+                                            <span class="sr-only">(current)</span>
+                                        </span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+        
+                            {% if product_list.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_list.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">Next</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_list.paginator.num_pages }}" aria-label="Last">
+                                        <span aria-hidden="true">last &raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
                     {% endif %}
-
-                    {% for page in product_list.paginator.page_range %}
-                        {% if page == product_list.number %}
-                            <li class="page-item active" aria-current="page">
-                                <span class="page-link">
-                                    {{ page }}
-                                    <span class="sr-only">(current)</span>
-                                </span>
-                            </li>
-                        {% else %}
-                            <li class="page-item">
-                                <a class="page-link" href="?page={{ page }}">{{ page }}</a>
-                            </li>
-                        {% endif %}
-                    {% endfor %}
-
-                    {% if product_list.has_next %}
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ product_list.next_page_number }}" aria-label="Next">
-                                <span aria-hidden="true">Next</span>
-                            </a>
-                        </li>
-                        <li class="page-item">
-                            <a class="page-link" href="?page={{ product_list.paginator.num_pages }}" aria-label="Last">
-                                <span aria-hidden="true">last &raquo;</span>
-                            </a>
-                        </li>
-                    {% else %}
-                        <li class="page-item disabled">
-                            <span class="page-link">Next</span>
-                        </li>
-                    {% endif %}
-                </ul>
-            </nav>
-            {% endif %}
+                </li>
+            </ul>    
+            
         </div>
     </div>
     <!-- Page end  -->

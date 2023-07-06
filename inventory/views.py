@@ -8,11 +8,25 @@ from inventory.models import Product,ProductReturn,Notifications
 from .forms import ProductForm,ProductReturnForm,SellUpdateForm
 from django.http import JsonResponse
 from joelypos.utility import *
-from pos.models import Sell,SellOrder
+from pos.models import Sell,SellOrder,ProductOrder
 from datetime import datetime
 from django.db.models import Sum,Avg,Count
 from django.db import IntegrityError
+from django.db.models.functions import ExtractMonth
+import json
+import calendar
+from datetime import date
+from decimal import Decimal
 
+from django.core.serializers.json import DjangoJSONEncoder
+
+# Custom JSON encoder to handle decimal serialization
+class DecimalEncoder(DjangoJSONEncoder):
+    def default(self, o):
+        if isinstance(o, Decimal):
+            return float(o)
+        return super().default(o)
+    
 def get_total_sell_amount():
     total_sell_amount = Sell.objects.aggregate(total_amount=Sum('order__total'))
     return total_sell_amount['total_amount']
@@ -21,40 +35,92 @@ def get_total_sell_amount():
 @login_required(login_url='App_Auth:login')
 @admin_required
 def dashboard(request):
-    total_peoduct=Product.objects.filter(status=True)
+    products=Product.objects.all()
+    total_peoduct=products.filter(status=True)
+    removed_product=products.filter(status=False).count()
+    return_product=ProductReturn.objects.count()
+    sellData=Sell.objects.filter(status=True)
+    total_sell=0
+    for sell in sellData:
+        total_sell+=sell.count_order_products()
+    
+    userData=User.objects.count()
     total_cost = total_peoduct.aggregate(total_cost=Sum('totalcost'))['total_cost']
-    total_sell=Sell.objects.all()
     product_stats = total_peoduct.aggregate(total_cost=Sum('totalcost'), total_products=Count('id'))
     total_cost = product_stats['total_cost']
     total_products = product_stats['total_products']
 
-    if total_products > 0:
-        average_cost = round(total_cost / total_products, 2)
-    else:
-        average_cost = 0.00
-        
-    average_order = SellOrder.objects.filter(is_payment=True).aggregate(average_total=Avg('total'))
-    average_total = average_order['average_total']
+    
+    # # Get all months in a year
+    # months = [month for month in range(1, 13)]
+    
+    # monthly_total_cost = Product.objects.filter(created__year=date.today().year).annotate(month=ExtractMonth('created')).values('month').annotate(total_cost=Sum('totalcost')).order_by('month')
+    # monthly_total_cost_dict = {cost['month']: cost['total_cost'] for cost in monthly_total_cost}
+    # for month in months:
+    #     total_cost = monthly_total_cost_dict.get(month, 0)
+    #     month_name = calendar.month_name[month]
+    #     print(f"{month_name}: {total_cost}")
 
-    if average_total is not None:
-        average_total = round(average_total, 2)
-    else:
-        average_total = 0.00    
-    
-    
-    # Get the current year
-    current_year = datetime.now().year
-    average_order = Sell.objects.filter(status=True, created__year=current_year).aggregate(average_total=Avg('order__total'))
-    average_total = average_order['average_total'] or 0.0  # Set default value to 0.0 if average_total is None
-    average_total=round(average_total,2)
-    
+
+    # # Calculate monthly sell amount for the current year
+    # monthly_sell_amount = Sell.objects.filter(paymentstatus='approve', created__year=date.today().year).annotate(month=ExtractMonth('created')).values('month').annotate(total_sell_amount=Sum('order__subtotal')).order_by('month')
+
+    # # Create a dictionary to store monthly sell amounts
+    # monthly_sell_amount_dict = {sell['month']: sell['total_sell_amount'] for sell in monthly_sell_amount}
+
+    # # Iterate over all months and print the monthly sell amount (including zero sell amount months)
+    # for month in months:
+    #     total_sell_amount = monthly_sell_amount_dict.get(month, 0)
+    #     month_name = calendar.month_name[month]
+    #     print(f"{month_name}: {total_sell_amount}")
+    months = [month for month in range(1, 13)]
+
+    # Calculate monthly sell amount and cost for the current year
+    monthly_sell_amount = Sell.objects.filter(paymentstatus='approve', created__year=date.today().year).annotate(month=ExtractMonth('created')).values('month').annotate(total_sell_amount=Sum('order__subtotal')).order_by('month')
+    monthly_total_cost = SellOrder.objects.filter(sell__paymentstatus='approve', created__year=date.today().year).annotate(month=ExtractMonth('created')).values('month').annotate(total_cost=Sum('product__price')).order_by('month')
+
+    # Create lists to store sell and cost data
+    sell_data = [0] * 12
+    cost_data = [0] * 12
+
+    # Populate sell data
+    for sell in monthly_sell_amount:
+        month = sell['month']
+        total_sell_amount = sell['total_sell_amount']
+        sell_data[month - 1] = total_sell_amount
+
+    # Populate cost data
+    for cost in monthly_total_cost:
+        month = cost['month']
+        total_cost = cost['total_cost']
+        cost_data[month - 1] = total_cost
+
+    # Convert data to JSON format
+    # Convert data to JSON format using the custom encoder
+    sell_data_json = json.dumps(sell_data, cls=DecimalEncoder)
+    cost_data_json = json.dumps(cost_data, cls=DecimalEncoder)
+
+
+    # # Set the data in the options variable
+    # options = {
+    #     'series': [
+    #         {'name': 'Total Cost', 'data': cost_data},
+    #         {'name': 'Total Sell', 'data': sell_data}
+    #     ]
+    # }
+    print(sell_data_json)
     context={
         'total_peoduct':total_peoduct.count(),
-        'total_sell':total_sell.count(),
+        'return_product':return_product,
+        'removed_product':removed_product,
+        'userData':userData,
+        'total_sell':total_sell,
         'total_sell_amount':get_total_sell_amount(),
         'total_costing':total_cost,
-        'average_cost':average_cost,
-        'average_total':average_total,
+        'sell_data_json':sell_data_json,
+        'cost_data_json':cost_data_json
+        # 'average_cost':average_cost,
+        # 'average_total':average_total,
     }
     return render(request,'inventory/index.html',context)
 
@@ -63,6 +129,9 @@ def dashboard(request):
 @login_required(login_url='App_Auth:login')
 @admin_required
 def userlist(request):
+    referer = request.META.get('HTTP_REFERER')
+    if not referer:
+        return render(request,'authuser/referer.html')
     
     search_name = request.GET.get('username', '')
     search_usertype = request.GET.get('usertype', '')
@@ -85,7 +154,7 @@ def userlist(request):
             users=users.filter(is_active=False) 
             
 
-    paginator = Paginator(users, 10)  # Show 10 products per page
+    paginator = Paginator(users, 15)  # Show 10 products per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
     
@@ -96,7 +165,6 @@ def userlist(request):
         'search_usertype':search_usertype,
     }
     return render(request,'inventory/users/users.html',context)
-
 
 #add user page
 @login_required(login_url='App_Auth:login')
@@ -167,10 +235,9 @@ def deleteuserdata(request):
 @login_required(login_url='App_Auth:login')
 @admin_required    
 def edituserdata(request,id):
-    # try:
-        
-    # except:
-    #     user=None
+    referer = request.META.get('HTTP_REFERER')
+    if not referer:
+        return render(request,'authuser/referer.html')
     user=User.objects.get(id=id)
     if request.method=="POST":
         first_name = request.POST.get('first_name')
@@ -205,7 +272,6 @@ def edituserdata(request,id):
     }
     return render(request,'inventory/users/edit.html',context)    
 
-
 @login_required(login_url='App_Auth:login')
 @staff_required  
 def viewproduct(request):
@@ -216,7 +282,7 @@ def viewproduct(request):
                    
     products = Product.objects.filter(
         status=True
-    )
+    ).order_by("-id")
     
     if search_name:
         products=products.filter(name__icontains=search_name)
@@ -229,10 +295,10 @@ def viewproduct(request):
     
     
     
-    paginator = Paginator(products, 10)  # Show 10 products per page
+    paginator = Paginator(products, 15)  # Show 10 products per page
     page_number = request.GET.get('page')
     page_obj = paginator.get_page(page_number)
-    
+
     context = {
         'product_list': page_obj,
         'search_name': search_name,
@@ -355,9 +421,8 @@ def deleteremovedproductview(request):
         if request.method == 'POST':
             id = request.POST.get("id")
             product = get_object_or_404(Product, id=id)
-            print(product)
             product.delete()
-            messages.success(request, "Product deleted successfully")
+            messages.success(request, "Product Restore successfully")
         else:        
             messages.error(request, "Something went wrong")
     except IntegrityError as e:
@@ -467,6 +532,23 @@ def editreturnproduct(request,id):
     
     return render(request, 'inventory/returnproduct/editproduct.html', {'form': form})
 
+
+
+@login_required(login_url='App_Auth:login')
+@admin_required
+def deletereturnproductview(request):
+    if request.method == 'POST':
+        id=request.POST.get("id")
+        product = get_object_or_404(ProductReturn,id=id)
+        product.product.quantity+=product.quantity
+        product.product.save()
+        product.delete()
+        messages.success(request,"product restore successfully")
+        return redirect('App_inventory:returnproduct')
+    else:        
+        messages.error(request,"Somethig went wrong")
+    return redirect('App_inventory:restoreproducts')
+    
 
 
 @login_required(login_url='App_Auth:login')

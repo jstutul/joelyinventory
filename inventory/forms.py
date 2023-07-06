@@ -6,7 +6,7 @@ from pos.models import Sell
 class ProductForm(forms.ModelForm):
     class Meta:
         model = Product
-        fields = ['name', 'category', 'color', 'size', 'quantity', 'image', 'productioncost', 'transportcost', 'additionalcost']
+        fields = ['name', 'category', 'color', 'size', 'quantity', 'price','discount','image', 'productioncost', 'transportcost', 'additionalcost']
         widgets = {
             'name': forms.TextInput(attrs={'class': 'form-control'}),
             'category': forms.Select(attrs={'class': 'form-control'}),
@@ -14,6 +14,8 @@ class ProductForm(forms.ModelForm):
             'size': forms.Select(attrs={'class': 'form-control'}),
             'quantity': forms.NumberInput(attrs={'class': 'form-control','min':'1'}),
             'image': forms.ClearableFileInput(attrs={'class': 'form-control-file'}),
+            'price': forms.NumberInput(attrs={'class': 'form-control'}),
+            'discount': forms.NumberInput(attrs={'class': 'form-control'}),
             'productioncost': forms.NumberInput(attrs={'class': 'form-control'}),
             'transportcost': forms.NumberInput(attrs={'class': 'form-control'}),
             'additionalcost': forms.NumberInput(attrs={'class': 'form-control'}),

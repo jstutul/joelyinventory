@@ -6,10 +6,10 @@
     <div class="row">
         <div class="col-sm-6 mx-auto">
             {% include 'alert/alert.html'%}
-            <div class="card">
-                <div class="card-header d-flex justify-content-between">
+            <div class="card blur-shadow shadow-showcase">
+                <div class="card-header d-flex justify-content-between bg-primary rounded-top">
                     <div class="header-title">
-                        <h4 class="card-title">Add Users</h4>
+                        <h4 class="text-white">Add Users</h4>
                     </div>
                 </div>
                 <div class="card-body">
@@ -77,7 +77,7 @@
                                         <input type="radio" id="my_usertype" name="my_usertype" value="1" checked required>Admin
                                     </label>
                                     <label class="radio-inline mr-2">
-                                        <input type="radio" id="my_usertype" name="my_usertype" value="2"> Staf
+                                        <input type="radio" id="my_usertype" name="my_usertype" value="2"> Inventory Department
                                     </label>
                                       
                                     <label class="radio-inline">
@@ -87,9 +87,8 @@
                                 </div>
                             </div>                        
                         </div>   
-                                    
-                        <button type="submit" class="btn btn-primary mr-2">Add User</button>
                         <button type="reset" class="btn btn-danger">Reset</button>
+                        <button type="submit" class="btn btn-primary mr-2">Add User</button>
                     </form>
                 </div>
             </div>

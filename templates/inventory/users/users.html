@@ -4,29 +4,170 @@
 {% block main %}
 <div class="container-fluid">
     <div class="row">
-        <div class="col-lg-12">
-            <div class="d-flex flex-wrap align-items-center justify-content-between mb-4">
-                <div><h4 class="mb-3">User List</h4></div>
-                <a href="{% url 'App_inventory:adduser' %}" class="btn btn-primary add-list"><i class="las la-plus mr-3"></i>Add User</a>
-            </div>
+        <div class="col-lg-12 mb-3">
+            <ul class="list-group">
+                <li class="list-group-item active d-flex justify-content-between align-items-center">
+                    <div>
+                        <h4 class="text-white">User List ({{product_list.paginator.count}})</h4>
+                    </div>
+                    <div>
+                        <a href="{% url 'App_inventory:adduser' %}" class="btn btn-success add-list float-right">
+                            <i class="las la-plus mr-1"></i>
+                            Add User
+                        </a>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <form method="get">
+                        <div class="row">
+                            <div class="col-lg-5">
+                                <label>Username</label>
+                                <div class="form-group">
+                                    <input type="text" class="form-control" name="username" id="username" value="{{ search_name }}">
+                                </div>
+                            </div>
+                            <div class="col-lg-3">
+                                <div class="form-group">
+                                    <label>Usertype</label>
+                                    <select class="form-control mb-3" name="usertype">
+                                        <option selected="" value="">Select</option>
+                                        <option {% if search_usertype == '1'%} selected {% endif %} value="1">Admin</option>
+                                        <option {% if search_usertype == '2'%} selected {% endif %} value="2">Inventory Department</option>
+                                        <option {% if search_usertype == '3'%} selected {% endif %} value="3">Sales</option>
+                                       
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label>Status</label>
+                                    <select class="form-control mb-3" name="userstatus">
+                                        <option selected="" value="">Select</option>
+                                        <option {% if search_status == '1' %}selected {% endif %} value="1">Active</option>
+                                        <option {% if search_status == '2' %}selected {% endif %} value="2">Inactive</option>
+                                    </select>
+                                </div>
+                            </div>
+                            <div class="col-lg-2">
+                                <div class="form-group">
+                                    <label>&nbsp</label><br>
+                                    <button class="btn btn-primary">Search</button>
+                                </div>
+                            </div>                 
+                        </div>
+                    </form>
+                </li>
+                <li class="list-group-item p-0">
+                    <div class="table-responsive mb-3">
+                        <table class="table table-hover">
+                            <thead class="bg-white text-uppercase">
+                                <tr class="ligth ligth-data">
+                                    <th>SL</th>
+                                    <th>FullName</th>
+                                    <th>Username</th>
+                                    <th>Email</th>
+                                    <th>Status</th>
+                                    <th>UserType</th>
+                                    <th>Action</th>
+                                </tr>
+                            </thead>
+                            <tbody class="ligth-body">
+                               {% for user in product_list %}
+                                <tr>
+                                    <td>{{forloop.counter}}</td>
+                                    <td>{{user.get_full_name}}</td>
+                                    <td>{{user.username}}</td>
+                                    <td>{{user.email}}</td>
+                                    <td>{{ user|active_status }}</td>
+                                    <td>{{ user|user_type }}</td>
+                                    <td>
+                                        <div class="d-flex align-items-center list-action">
+                                            <a class="badge bg-success mr-2" data-toggle="tooltip" data-placement="top" title="" data-original-title="Edit" href="{% url 'App_inventory:edituser' user.id %}">
+                                                <i class="ri-pencil-line mr-0"></i>
+                                            </a>
+                                            <a href="javascripts:void(0);" userid="{{user.id}}" type="button" class="badge bg-warning mr-2 userdelete" data-toggle="modal" data-target="#deleteUserData"><i class="ri-delete-bin-line mr-0"></i></a>
+                                        </div>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                    {% if product_list.has_other_pages %}
+                    <nav class="m-2 ">
+                        <ul class="pagination justify-content-end">
+                            {% if product_list.has_previous %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page=1" aria-label="First">
+                                        <span aria-hidden="true">&laquo; first</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_list.previous_page_number }}" aria-label="Previous">
+                                        <span aria-hidden="true">Previous</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">Previous</span>
+                                </li>
+                            {% endif %}
+
+                            {% for page in product_list.paginator.page_range %}
+                                {% if page == product_list.number %}
+                                    <li class="page-item active" aria-current="page">
+                                        <span class="page-link">
+                                            {{ page }}
+                                            <span class="sr-only">(current)</span>
+                                        </span>
+                                    </li>
+                                {% else %}
+                                    <li class="page-item">
+                                        <a class="page-link" href="?page={{ page }}">{{ page }}</a>
+                                    </li>
+                                {% endif %}
+                            {% endfor %}
+
+                            {% if product_list.has_next %}
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_list.next_page_number }}" aria-label="Next">
+                                        <span aria-hidden="true">Next</span>
+                                    </a>
+                                </li>
+                                <li class="page-item">
+                                    <a class="page-link" href="?page={{ product_list.paginator.num_pages }}" aria-label="Last">
+                                        <span aria-hidden="true">last &raquo;</span>
+                                    </a>
+                                </li>
+                            {% else %}
+                                <li class="page-item disabled">
+                                    <span class="page-link">Next</span>
+                                </li>
+                            {% endif %}
+                        </ul>
+                    </nav>
+                    {% endif %}
+                </li>
+            </ul>
         </div>
+        <!--
         <div class="col-lg-12">
             <div class="card px-4">
                 <form method="get">
                     <div class="row">
-                        <div class="col-lg-6">
+                        <div class="col-lg-5">
                             <label>Username</label>
                             <div class="form-group">
                                 <input type="text" class="form-control" name="username" id="username" value="{{ search_name }}">
                             </div>
                         </div>
-                        <div class="col-lg-2">
+                        <div class="col-lg-3">
                             <div class="form-group">
                                 <label>Usertype</label>
                                 <select class="form-control mb-3" name="usertype">
                                     <option selected="" value="">Select</option>
                                     <option {% if search_usertype == '1'%} selected {% endif %} value="1">Admin</option>
-                                    <option {% if search_usertype == '2'%} selected {% endif %} value="2">Staff</option>
+                                    <option {% if search_usertype == '2'%} selected {% endif %} value="2">Inventory Department</option>
                                     <option {% if search_usertype == '3'%} selected {% endif %} value="3">Sales</option>
                                    
                                 </select>
@@ -52,6 +193,7 @@
                 </form>
             </div>
         </div>
+        
         <div class="col-lg-12">
             <div class="table-responsive rounded mb-3">
             <table class="table table-hover">
@@ -141,6 +283,7 @@
                 </ul>
             </nav>
         </div>
+        -->
     </div>
 </div>
 {% include 'alert/pop.html'%}

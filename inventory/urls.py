@@ -26,6 +26,7 @@ urlpatterns = [
   path('return/products',returnproductview,name="returnproduct"),
   path('return/add', addreturnproduct, name='addreturnproduct'),
   path('return/edit/<int:id>', editreturnproduct, name='editreturnproduct'),
+  path('return/delete', deletereturnproductview, name='returnproductdelete'),
   ##end
   path('product/barcode',barcodeview,name="barcode"),
   path('product/barcode/image',getbarcodeimage,name="getbarcodeimg"),

@@ -10,7 +10,7 @@ def active_status(value):
 def user_type(value):
     res="Sales"
     if value.is_staff:
-        res="Staff"
+        res="Inventory Department"
     if value.is_superuser and value.is_staff:
         res="Admin" 
                 

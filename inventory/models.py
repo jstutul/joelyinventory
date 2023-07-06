@@ -57,6 +57,8 @@ class Product(models.Model):
     size=models.CharField(max_length=50,choices=SIZE_CHOICES)
     quantity=models.IntegerField(default=1,validators=[MinValueValidator(1)])
     image=models.ImageField(upload_to="product_images/",blank=False)
+    price=models.FloatField(default=10.0)
+    discount=models.FloatField(default=0.0)
     productioncost=models.FloatField(default=0.0)
     transportcost=models.FloatField(default=0.0)
     additionalcost=models.FloatField(default=0.0)
@@ -79,7 +81,6 @@ class Product(models.Model):
         
      
     def delete(self, *args, **kwargs):
-        # Delete the barcode image before deleting the product
         self.delete_barcode_image()
         super(Product, self).delete(*args, **kwargs)
     

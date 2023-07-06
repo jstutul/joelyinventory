@@ -6,48 +6,96 @@
         <div class="col-lg-12">
             <div class="row">
                 <div class="col-lg-3 col-md-3">
-                    <div class="card card-block card-stretch card-height">
+                    <div class="bg-warning card card-block card-stretch card-height blur-shadow shadow-showcase">
                         <div class="card-body">
-                            <div class="d-flex align-items-center mb-4 card-total-sale">
+                            <div class="d-flex align-items-center card-total-sale">
                                 <div>
-                                    <p class="mb-2">Total Products</p>
-                                    <h4>{{total_peoduct}}</h4>
+                                    <h4 class="text-white">Products</h4>
+                                    <h2 class="text-white text-center">{{total_peoduct}}</h2>
                                 </div>
                             </div> 
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-3">
-                    <div class="card card-block card-stretch card-height">
+                    <div class="bg-primary card card-block card-stretch card-height blur-shadow shadow-showcase">
                         <div class="card-body">
-                            <div class="d-flex align-items-center mb-4 card-total-sale">
+                            <div class="d-flex align-items-center card-total-sale">
                                 <div>
-                                    <p class="mb-2">Total Sell Product</p>
-                                    <h4>{{total_sell}}</h4>
+                                    <h4 class="text-white">Return Products</h4>
+                                    <h2 class="text-white text-center">{{return_product}}</h2>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-3">
-                    <div class="card card-block card-stretch card-height">
+                    <div class="bg-success card card-block card-stretch card-height blur-shadow shadow-showcase">
                         <div class="card-body">
-                            <div class="d-flex align-items-center mb-4 card-total-sale">
+                            <div class="d-flex align-items-center card-total-sale">
                                 <div>
-                                    <p class="mb-2">Total Sold Amount</p>
-                                    <h4>{{total_sell_amount}}</h4>
+                                    <h4 class="text-white">Remove Products</h4>
+                                    <h2 class="text-white text-center">{{removed_product}}</h2>
                                 </div>
                             </div>
                         </div>
                     </div>
                 </div>
                 <div class="col-lg-3 col-md-3">
-                    <div class="card card-block card-stretch card-height">
+                    <div class="bg-danger card card-block card-stretch card-height blur-shadow shadow-showcase">
                         <div class="card-body">
-                            <div class="d-flex align-items-center mb-4 card-total-sale">
+                            <div class="d-flex align-items-center card-total-sale">
                                 <div>
-                                    <p class="mb-2">Total Product Cost</p>
-                                    <h4>{{total_costing}}</h4>
+                                    <h4 class="text-white">Sales Return</h4>
+                                    <h2 class="text-white text-center">{{total_costing}}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="bg-dark card card-block card-stretch card-height blur-shadow shadow-showcase">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center card-total-sale">
+                                <div>
+                                    <h4 class="text-white">Sale Product</h4>
+                                    <h2 class="text-white text-center">{{total_sell}}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="bg-warning card card-block card-stretch card-height blur-shadow shadow-showcase">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center card-total-sale">
+                                <div>
+                                    <h4 class="text-white">Sale Amount</h4>
+                                    <h2 class="text-white text-center">{{total_sell_amount}}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="bg-light card card-block card-stretch card-height blur-shadow shadow-showcase">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center card-total-sale">
+                                <div>
+                                    <h4 class="text-white">Total Cost</h4>
+                                    <h2 class="text-white text-center">{{total_costing}}</h2>
+                                </div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="col-lg-3 col-md-3">
+                    <div class="bg-info card card-block card-stretch card-height blur-shadow shadow-showcase">
+                        <div class="card-body">
+                            <div class="d-flex align-items-center card-total-sale">
+                                <div>
+                                    <h4 class="text-white">Total User</h4>
+                                    <h2 class="text-white text-center">{{userData}}</h2>
                                 </div>
                             </div>
                         </div>
@@ -56,10 +104,13 @@
             </div>
         </div>
         <div class="col-lg-12">  
-            <div class="card card-block card-stretch card-height">
-                <div class="card-header d-flex justify-content-between">
+            <div class="card card-block card-stretch card-height blur-shadow shadow-showcase">
+                <div class="card-header d-flex justify-content-between bg-primary rounded-top">
                     <div class="header-title">
-                        <h4 class="card-title">Total Summary</h4>
+                        {% load tz %}
+                        {% now "Y" as current_year %}
+                        <h4 class="text-white">Summary of {{current_year}} </h4>
+
                     </div>  
                 </div> 
                 <div class="card-body pb-2">
@@ -67,13 +118,13 @@
                         <div class="d-flex align-items-center progress-order-left">
                             <div class="progress-value ml-3 pr-5 border-right">
                                 <h5>{{average_total}}</h5>
-                                <p class="mb-0">Average Orders</p>
+                                <p class="mb-0">Sale</p>
                             </div>
                         </div>
                         <div class="d-flex align-items-center ml-5 progress-order-right"> 
                             <div class="progress-value ml-3">
                                 <h5>{{average_cost}}</h5>
-                                <p class="mb-0">Average Costing</p>
+                                <p class="mb-0">Cost</p>
                             </div>
                         </div>
                     </div>
@@ -85,4 +136,78 @@
         </div>
     </div>
 </div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.28.3/dist/apexcharts.min.js"></script>
+    <!-- Your other head elements -->
+<script>
+    (function(jQuery) {
+        if (jQuery("#layout1-chart-5").length) {    
+            options = {
+            series: [{
+                name: 'Total Cost',
+                data: {{ cost_data_json }}
+            }, {
+                name: 'Total Sell',
+                data: {{ sell_data_json }}
+            }],
+            chart: {
+            type: 'bar',
+            height: 300
+            },
+            colors: ['#32BDEA','#FF7E41'],
+                plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '30%',
+                    endingShape: 'rounded'
+                },
+                },
+                dataLabels: {
+                enabled: false
+                },
+                stroke: {
+                show: true,
+                width: 3,
+                colors: ['transparent']
+                },
+                xaxis: {
+                categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: {
+                    minWidth: 0,
+                    maxWidth: 0
+                }
+                },
+            yaxis: {
+                show: true,
+                labels: {
+                minWidth: 20,
+                maxWidth: 20
+                }
+            },
+                fill: {
+                opacity: 1
+                },
+                tooltip: {
+                y: {
+                    formatter: function (val) {
+                    return "$ " + val + " thousands"
+                    }
+                }
+                }
+            };
+            const chart = new ApexCharts(document.querySelector("#layout1-chart-5"), options);
+            chart.render();
+            const body = document.querySelector('body')
+            if (body.classList.contains('dark')) {
+            apexChartUpdate(chart, {
+                dark: true
+            })
+            }
+        
+            document.addEventListener('ChangeColorMode', function (e) {
+            apexChartUpdate(chart, e.detail)
+            })
+        }
+    })(jQuery);
+</script>    
 {% endblock %}

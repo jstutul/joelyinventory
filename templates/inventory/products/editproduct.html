@@ -6,10 +6,10 @@
     <div class="row">
         <div class="col-sm-8 mx-auto">
             {% include 'alert/alert.html'%}
-            <div class="card">
-                <div class="card-header d-flex justify-content-between">
+            <div class="card blur-shadow shadow-showcase">
+                <div class="card-header d-flex justify-content-between bg-primary rounded-top">
                     <div class="header-title">
-                        <h4 class="card-title">Update Product</h4>
+                        <h4 class="text-white">Update Product</h4>
                     </div>
                 </div>
                 <div class="card-body">
@@ -49,6 +49,20 @@
                                 <div class="form-group">
                                     <label for="{{ form.name.quantity }}">Quantity</label>
                                     {{form.quantity}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.price }}">Price</label>
+                                    {{form.price}}
+                                    <div class="help-block with-errors"></div>
+                                </div> 
+                            </div>
+                            <div class="col-md-6">
+                                <div class="form-group">
+                                    <label for="{{ form.name.discount }}">Discount</label>
+                                    {{form.discount}}
                                     <div class="help-block with-errors"></div>
                                 </div> 
                             </div>
