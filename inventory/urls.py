@@ -39,7 +39,8 @@ urlpatterns = [
   ##notification
   path("notifications",NotificationView,name="notifications"),
   path("notifications/delete/<int:id>",NotificationDeleteView,name="notificationsdelete"),
-  
+  ##sales report
+  path("salesreport",SalesReport,name='salesreport'),
   
   
 ]

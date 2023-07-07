@@ -30,11 +30,6 @@ def get_product_api(request):
     print(category,color,size,barcode)
     products = Product.objects.all()
     if barcode:
-        #barcode =int(barcode) - 10000000
-        # print(barcode)
-        print(barcode)
-        #formatted_uuid = uuid.UUID(barcode)
-        print("<",print)
         products = products.filter(qcode=barcode)
     if category:
         products = products.filter(category=category)

@@ -1,0 +1,131 @@
+{% extends 'inventory/base/base.html'%}
+{% load static %}
+{% block main %}
+<div class="container-fluid">
+    <div class="row mb-2">      
+        <div class="col-lg-12">
+            <ul class="list-group">
+                <li class="list-group-item active">
+                    <div class="header-title">
+                        <h4 class="text-white">Summary of Sell & Cost Data </h4>
+                    </div>
+                </li>
+                <li class="list-group-item">
+                    <form method="get">
+                        <div class="row p-2">
+                           <div class="col-lg-3">
+                              <input type="date" name="startDate" class="form-control" value="{{start_date}}">
+                           </div>
+                           <div class="col-lg-3">
+                              <input type="date" name="endDate" class="form-control" value="{{end_date}}">
+                           </div>
+                           <button type="submit" class="btn btn-primary">Search</button>
+                        </div>
+                    </form>
+                </li>
+                <li class="list-group-item p-0 mt-1">
+                    <div class="card card-block card-stretch card-height blur-shadow shadow-showcase">
+                        <div class="card-body pb-2">
+                            <div class="d-flex flex-wrap align-items-center mt-2">
+                                <div class="d-flex align-items-center progress-order-left">
+                                    <div class="progress-value ml-3 pr-5 border-right">
+                                        <h5>{{t_sell}}</h5>
+                                        <p class="mb-0">Total Sale</p>
+                                    </div>
+                                </div>
+                                <div class="d-flex align-items-center ml-5 progress-order-right"> 
+                                    <div class="progress-value ml-3">
+                                        <h5>{{t_cost}}</h5>
+                                        <p class="mb-0">Total Cost</p>
+                                    </div>
+                                </div>
+                            </div>
+                        </div>
+                        <div class="card-body pt-0">
+                            <div id="layout1-chart-5"></div>
+                        </div>
+                    </div>
+                </li>
+            </ul>        
+            
+        </div>      
+        <div class="col-lg-12">  
+            
+        </div>
+    </div>
+</div>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
+<script src="https://cdn.jsdelivr.net/npm/apexcharts@3.28.3/dist/apexcharts.min.js"></script>
+
+<script>
+    (function(jQuery) {
+        if (jQuery("#layout1-chart-5").length) {    
+            options = {
+            series: [{
+                name: 'Total Cost',
+                data: {{ cost_data_json }}
+            }, {
+                name: 'Total Sell',
+                data: {{ sell_data_json }}
+            }],
+            chart: {
+            type: 'bar',
+            height: 300
+            },
+            colors: ['#32BDEA','#FF7E41'],
+                plotOptions: {
+                bar: {
+                    horizontal: false,
+                    columnWidth: '30%',
+                    endingShape: 'rounded'
+                },
+                },
+                dataLabels: {
+                enabled: false
+                },
+                stroke: {
+                show: true,
+                width: 3,
+                colors: ['transparent']
+                },
+                xaxis: {
+                categories: ["Jan", "Feb", "Mar", "Apr", "May", "Jun", "Jul", "Aug", "Sep", "Oct", "Nov", "Dec"],
+                labels: {
+                    minWidth: 0,
+                    maxWidth: 0
+                }
+                },
+            yaxis: {
+                show: true,
+                labels: {
+                minWidth: 20,
+                maxWidth: 20
+                }
+            },
+                fill: {
+                opacity: 1
+                },
+                tooltip: {
+                y: {
+                    formatter: function (val) {
+                    return "$ " + val + " thousands"
+                    }
+                }
+                }
+            };
+            const chart = new ApexCharts(document.querySelector("#layout1-chart-5"), options);
+            chart.render();
+            const body = document.querySelector('body')
+            if (body.classList.contains('dark')) {
+            apexChartUpdate(chart, {
+                dark: true
+            })
+            }
+        
+            document.addEventListener('ChangeColorMode', function (e) {
+            apexChartUpdate(chart, e.detail)
+            })
+        }
+    })(jQuery);
+</script>    
+{% endblock %}

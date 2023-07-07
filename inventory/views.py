@@ -9,7 +9,7 @@ from .forms import ProductForm,ProductReturnForm,SellUpdateForm
 from django.http import JsonResponse
 from joelypos.utility import *
 from pos.models import Sell,SellOrder,ProductOrder
-from datetime import datetime
+from datetime import datetime,timedelta
 from django.db.models import Sum,Avg,Count
 from django.db import IntegrityError
 from django.db.models.functions import ExtractMonth
@@ -50,29 +50,6 @@ def dashboard(request):
     total_cost = product_stats['total_cost']
     total_products = product_stats['total_products']
 
-    
-    # # Get all months in a year
-    # months = [month for month in range(1, 13)]
-    
-    # monthly_total_cost = Product.objects.filter(created__year=date.today().year).annotate(month=ExtractMonth('created')).values('month').annotate(total_cost=Sum('totalcost')).order_by('month')
-    # monthly_total_cost_dict = {cost['month']: cost['total_cost'] for cost in monthly_total_cost}
-    # for month in months:
-    #     total_cost = monthly_total_cost_dict.get(month, 0)
-    #     month_name = calendar.month_name[month]
-    #     print(f"{month_name}: {total_cost}")
-
-
-    # # Calculate monthly sell amount for the current year
-    # monthly_sell_amount = Sell.objects.filter(paymentstatus='approve', created__year=date.today().year).annotate(month=ExtractMonth('created')).values('month').annotate(total_sell_amount=Sum('order__subtotal')).order_by('month')
-
-    # # Create a dictionary to store monthly sell amounts
-    # monthly_sell_amount_dict = {sell['month']: sell['total_sell_amount'] for sell in monthly_sell_amount}
-
-    # # Iterate over all months and print the monthly sell amount (including zero sell amount months)
-    # for month in months:
-    #     total_sell_amount = monthly_sell_amount_dict.get(month, 0)
-    #     month_name = calendar.month_name[month]
-    #     print(f"{month_name}: {total_sell_amount}")
     months = [month for month in range(1, 13)]
 
     # Calculate monthly sell amount and cost for the current year
@@ -108,7 +85,7 @@ def dashboard(request):
     #         {'name': 'Total Sell', 'data': sell_data}
     #     ]
     # }
-    print(sell_data_json)
+    # print(sell_data_json)
     context={
         'total_peoduct':total_peoduct.count(),
         'return_product':return_product,
@@ -118,11 +95,62 @@ def dashboard(request):
         'total_sell_amount':get_total_sell_amount(),
         'total_costing':total_cost,
         'sell_data_json':sell_data_json,
-        'cost_data_json':cost_data_json
-        # 'average_cost':average_cost,
-        # 'average_total':average_total,
+        'cost_data_json':cost_data_json,
+        't_cost':sum(cost_data),
+        't_sell':sum(sell_data)
     }
     return render(request,'inventory/index.html',context)
+
+
+#get all user list
+@login_required(login_url='App_Auth:login')
+@staff_required 
+def SalesReport(request):
+    s_date = request.GET.get('startDate', '')
+    e_date = request.GET.get('endDate', '')
+    
+    if s_date and e_date:
+        start_date = datetime.strptime(s_date, "%Y-%m-%d").date()
+        end_date = datetime.strptime(e_date, "%Y-%m-%d").date()
+    else:    
+        current_date = datetime.now().date()
+        start_date = current_date.replace(day=1)
+        end_date = current_date
+
+    # Calculate monthly sell amount and cost within the date range
+    monthly_sell_amount = Sell.objects.filter(paymentstatus='approve', created__range=(start_date, end_date)).annotate(month=ExtractMonth('created')).values('month').annotate(total_sell_amount=Sum('order__subtotal')).order_by('month')
+    monthly_total_cost = SellOrder.objects.filter(sell__paymentstatus='approve', created__range=(start_date, end_date)).annotate(month=ExtractMonth('created')).values('month').annotate(total_cost=Sum('product__price')).order_by('month')
+
+    # Create lists to store sell and cost data
+    sell_data = [0] * 12
+    cost_data = [0] * 12
+
+    # Populate sell data
+    for sell in monthly_sell_amount:
+        month = sell['month']
+        total_sell_amount = sell['total_sell_amount']
+        sell_data[month - 1] = total_sell_amount
+
+    # Populate cost data
+    for cost in monthly_total_cost:
+        month = cost['month']
+        total_cost = cost['total_cost']
+        cost_data[month - 1] = total_cost
+
+    # Convert data to JSON format using the custom encoder
+    sell_data_json = json.dumps(sell_data, cls=DecimalEncoder)
+    cost_data_json = json.dumps(cost_data, cls=DecimalEncoder)
+
+    context = {
+        'start_date': start_date.strftime("%Y-%m-%d"),
+        'end_date': end_date.strftime("%Y-%m-%d"),
+        'total_costing': sum(cost_data),
+        'sell_data_json': sell_data_json,
+        'cost_data_json': cost_data_json,
+        't_cost': sum(cost_data),
+        't_sell': sum(sell_data)
+    }
+    return render(request, 'inventory/report/index.html', context)
 
 
 #get all user list

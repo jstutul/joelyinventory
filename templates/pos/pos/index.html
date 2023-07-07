@@ -1,7 +1,7 @@
 {% extends 'pos/base/base.html'%}
 {% load static %}
 {% block main %}
-{% include 'alert/pop.html'%}
+{% include 'alert/pop.html'%}   
 <div class="content-page">
     <div class="container-fluid">
         <div class="row">
@@ -35,7 +35,7 @@
                         </select>
                     </div>
                 </div>  
-                <div class="row my-2" id="productzone" style="height: 500px; overflow-y: auto;"></div>
+                <div class="row my-2" id="productzone" style="height: 450px; overflow-y: auto;"></div>
             </div>
             <div class="col-lg-5">
                 <div class="card">
@@ -43,10 +43,10 @@
                         <table class="table">
                             <thead>
                               <tr>
-                                <th scope="col" width="50%">Product</th>
-                                <th scope="col" width="10%">Size/Color</th>
-                                <th scope="col" width="20%">Quantity</th>
-                                <th scope="col" width="20%">Price</th>
+                                <th scope="col" width="50%">Product <br>Name</th>
+                                <th scope="col" width="10%">Size/Color/<br>Discount</th>
+                                <th scope="col" width="20%">Product<br>Quantity</th>
+                                <th scope="col" width="20%">Priduct<br>Price</th>
                               </tr>
                             </thead>
                             <tbody id="cart-ligt"></tbody>
@@ -200,60 +200,47 @@
 <script>
     $(document).ready(function() {
         
-      $(document).on('click','.inc', function() {
-        var id=$(this).attr('spid');
-        ProductsCart.increaseToCart(id);
-      });
+        $(document).on('click','.inc', function() {
+            var id=$(this).attr('spid');
+            ProductsCart.increaseToCart(id);
+        });
 
-      $(document).on('click','.desc', function() {
-        var id=$(this).attr('spid');
-        ProductsCart.decreaseToCart(id);
+        $(document).on('click','.desc', function() {
+            var id=$(this).attr('spid');
+            ProductsCart.decreaseToCart(id);
 
-      });
+        });
 
         $(document).on('change','input.form-control', function() {
             calculateBill();
         });
+
         $(document).on('change','#discount', function() {
             calculateBill();
         });
 
-      var priceInputs = $("#cart-ligt input.form-control");
-
-        // Add event listener to each price input field
-        priceInputs.on("change", function() {
-            var subtotal = 0;
-
-            // Calculate the subtotal by summing the values of all price input fields
-            priceInputs.each(function() {
-            subtotal += parseFloat($(this).val());
-            });
-
-            // Update the subtotal input field with the calculated subtotal
-            $("#subtotal").val(subtotal.toFixed(2));
-        });
-      
-      
-
-      getProducts();
+        getProducts();
 
 
-      // Calculate bill based on inputs and update the values
+        // Calculate bill based on inputs and update the values
         function calculateBill() {
             var subtotal = 0;
-            var discount = parseFloat($('#discount').val()) || 0;
+            var discount = 0;
             
             $('.product-row').each(function() {
                 var quantity = parseFloat($(this).find('.quantity-input').text()) || 1;
-                var price = parseFloat($(this).find('.price-input').val()) || 0;
+                var price = parseFloat($(this).find('.price-input').text());
+                var dcount = parseFloat($(this).find('.price-discount').text());
                 var productTotal = quantity * price;
                 subtotal += productTotal;
+                discount+=dcount
                 $(this).find('.product-total').text(productTotal.toFixed(2));
             });
-            
+            console.log(discount);
             var total = subtotal - discount;
             
             $('#subtotal').val(subtotal.toFixed(2));
+            $('#discount').val(discount.toFixed(2));
             $('#total').val(total.toFixed(2));
         }
         calculateBill();
@@ -308,12 +295,14 @@
     function displayproduct(data){
         var strVar="";
         for(i=0;i<data.length;i++){
-            strVar += "<div class=\"col-lg-3 singleproduct\" spid=\""+data[i].pk+"\">";
+            strVar += "<div class=\"col-lg-3 h-100 singleproduct\" spid=\""+data[i].pk+"\">";
             strVar += "     <div class=\"card\">";
             strVar += "          <img src=\"/../media/"+data[i].fields.image+"\" class=\"card-img-top\" style=\"height:160px\" alt=\"#\">";
             strVar += "           <div>";
-            strVar += "                 <span class=\"badge badge-primary psize ml-1\">"+data[i].fields.size+"<\/span>";
+            strVar += "                 <span class=\"badge badge-light psize ml-1\">"+data[i].fields.size+"<\/span>";
             strVar += "                 <span class=\"badge badge-success pcolor ml-2\">"+data[i].fields.color+"<\/span>";
+            strVar += "                 <span class=\"badge badge-warning pprice ml-2\">"+data[i].fields.price.toFixed(2)+"<\/span>";
+            strVar += "                 <span class=\"badge badge-danger pdiscount ml-2\">"+data[i].fields.discount+"<\/span>";
             strVar += "           <\/div>";
             strVar += "           <div class=\"p-1\">";
             strVar += "                <span class=\"\">"+data[i].fields.name+"<\/span>";
@@ -333,7 +322,8 @@
             color:$(this).find(".pcolor").text().trim(),
             size:$(this).find(".psize").text().trim(),
             quantity:1,
-            price:($("#cart_" + $(this).attr('spid')).val() || 0),
+            price:$(this).find(".pprice").text().trim(),
+            discount:$(this).find(".pdiscount").text().trim(),
         };
         
         const countSpan = $(this).find('.product-count');
@@ -344,7 +334,6 @@
         }else{
             const newCount = count - 1;
             countSpan.text(newCount);
-            console.log(pjson);
             ProductsCart.addItemToCart(pjson);
         }
     })
@@ -368,12 +357,11 @@
                 
             $('.product-row').each(function() {
                 var quantity = parseFloat($(this).find('.quantity-input').text()) || 1;
-                var price = parseFloat($(this).find('.price-input').val()) || 0;
+                var price = parseFloat($(this).find('.price-input').text()) || 0;
                 var productTotal = quantity * price;
                 subtotal += productTotal;
                 $(this).find('.product-total').text(productTotal.toFixed(2));
-            });
-                
+            });   
             var total = subtotal - discount;
             $('#subtotal').val(subtotal.toFixed(2));
             $('#total').val(total.toFixed(2));
@@ -398,6 +386,7 @@
                 strCart += "  <td width=\"10%\">";
                 strCart += "    <span class=\"badge badge-primary\">"+item.size+"<\/span>";
                 strCart += "    <span class=\"badge badge-success\">"+item.color+"<\/span>";
+                strCart += "    <span class=\"badge badge-light price-discount\">"+item.discount+"<\/span>";
                 strCart += "  <\/td>";
                 strCart += "  <td width=\"20%\">";
                 strCart += "    <button spid=\""+item.spid+"\" class=\"btn btn-sm btn-danger desc\" type=\"button\">-<\/button>";
@@ -405,20 +394,13 @@
                 strCart += "    <button spid=\""+item.spid+"\" class=\"btn btn-sm btn-success inc\" type=\"button\">+<\/button>";
                 strCart += "  <\/td>";
                 strCart += "  <td width=\"20%\">";
-                strCart += "    <input type=\"text\" id=\"price_"+item.spid+"\" value=\""+item.price+"\" style=\"height:30px;\" class=\"form-control price-input\">";
+                strCart += "    <span id=\"price_"+item.spid+"\"  class=\"price-input\">"+item.price+"</span>";
                 strCart += "  <\/td>";
                 strCart += "<\/tr>";
             });
             $("#cart-ligt").html(strCart);
-            $('.price-input').on('input', function() {
-                calculateBill();
-              });
-              
-              // Calculate bill when discount input changes
-              $('#discount').on('input', function() {
-                console.log(2)
-                calculateBill();
-              });
+            console.log(100);
+            calculateBill();
             
         }
 
@@ -429,12 +411,6 @@
                 cart.push(item);
             } else {
                 pitem.quantity++;
-                pitem.price=$("#price_"+item.spid+"").val();
-            }
-            for(i=0;i<cart.length;i++){
-                if(cart[i].spid!=item.spid){
-                    cart[i].price=$("#price_"+cart[i].spid+"").val();
-                }
             }
             saveCart();
         };
@@ -445,7 +421,6 @@
             var count = parseInt(badge.innerText);
             if(count>0){
                 pitem.quantity++;
-                pitem.price=$("#price_"+id+"").val();
                 saveCart();
                 count--;
                 badge.innerText = count;
@@ -457,7 +432,6 @@
             var count = parseInt(badge.innerText);
             if(pitem.quantity>0){
                 pitem.quantity--;
-                pitem.price=$("#price_"+id+"").val();
                 saveCart();
                 count++;
                 badge.innerText = count;
@@ -494,6 +468,7 @@
             strCart += "  <td width=\"10%\">";
             strCart += "    <span class=\"badge badge-primary\">"+item.size+"<\/span>";
             strCart += "    <span class=\"badge badge-success\">"+item.color+"<\/span>";
+            strCart += "    <span class=\"badge badge-light price-discount\">"+item.discount+"<\/span>";
             strCart += "  <\/td>";
             strCart += "  <td width=\"20%\">";
             strCart += "    <button spid=\""+item.spid+"\" class=\"btn btn-sm btn-danger desc\" type=\"button\">-<\/button>";
@@ -501,7 +476,7 @@
             strCart += "    <button spid=\""+item.spid+"\" class=\"btn btn-sm btn-success inc\" type=\"button\">+<\/button>";
             strCart += "  <\/td>";
             strCart += "  <td width=\"20%\">";
-            strCart += "    <input type=\"text\" value=\""+item.price+"\" id=\"price_"+item.spid+"\" style=\"height:30px;\" class=\"form-control price-input\">";
+            strCart += "    <span id=\"price_"+item.spid+"\"  class=\"price-input\">"+item.price+"</span>";
             strCart += "  <\/td>";
             strCart += "<\/tr>";
         });
