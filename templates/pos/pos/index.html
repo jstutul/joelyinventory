@@ -64,7 +64,7 @@
                                       <input type="text" class="form-control" id="subtotal" readonly="" value="0">
                                   </div>
                                   <div class="input-group input-group-sm mb-1">
-                                      <input type="text" class="form-control" value="0" id="discount">
+                                      <input type="text" class="form-control" value="0" readonly="" id="discount">
                                   </div>
                                   <div class="input-group input-group-sm mb-1">
                                       <input type="text" class="form-control" id="total" readonly="" value="0">
@@ -208,37 +208,23 @@
         $(document).on('click','.desc', function() {
             var id=$(this).attr('spid');
             ProductsCart.decreaseToCart(id);
-
         });
-
-        $(document).on('change','input.form-control', function() {
-            calculateBill();
-        });
-
-        $(document).on('change','#discount', function() {
-            calculateBill();
-        });
-
         getProducts();
 
-
         // Calculate bill based on inputs and update the values
-        function calculateBill() {
+        function  calculateBill(){
             var subtotal = 0;
-            var discount = 0;
-            
-            $('.product-row').each(function() {
-                var quantity = parseFloat($(this).find('.quantity-input').text()) || 1;
-                var price = parseFloat($(this).find('.price-input').text());
-                var dcount = parseFloat($(this).find('.price-discount').text());
-                var productTotal = quantity * price;
+            let discount=0;
+            cart=ProductsCart.getCart();
+            cart.forEach(function(item) {
+                let productTotal = parseFloat(item.quantity) * parseFloat(item.price);
                 subtotal += productTotal;
-                discount+=dcount
-                $(this).find('.product-total').text(productTotal.toFixed(2));
-            });
-            console.log(discount);
-            var total = subtotal - discount;
-            
+                discount+=parseFloat(item.discount)*parseFloat(item.quantity);
+            })
+            var total =0;
+            if(subtotal>0){
+                total = subtotal - discount;
+            }
             $('#subtotal').val(subtotal.toFixed(2));
             $('#discount').val(discount.toFixed(2));
             $('#total').val(total.toFixed(2));
@@ -347,23 +333,24 @@
 
         function saveCart() {
             localStorage.setItem('productslist', JSON.stringify(cart));
-            calculateBill();
             displayCart();
         }
 
         function  calculateBill(){
             var subtotal = 0;
-            var discount = parseFloat($('#discount').val()) || 0;
-                
-            $('.product-row').each(function() {
-                var quantity = parseFloat($(this).find('.quantity-input').text()) || 1;
-                var price = parseFloat($(this).find('.price-input').text()) || 0;
-                var productTotal = quantity * price;
+            let discount=0;
+            cart=ProductsCart.getCart();
+            cart.forEach(function(item) {
+                let productTotal = parseFloat(item.quantity) * parseFloat(item.price);
                 subtotal += productTotal;
-                $(this).find('.product-total').text(productTotal.toFixed(2));
-            });   
-            var total = subtotal - discount;
+                discount+=parseFloat(item.discount)*parseFloat(item.quantity);
+            })
+            var total =0;
+            if(subtotal>0){
+                total = subtotal - discount;
+            }
             $('#subtotal').val(subtotal.toFixed(2));
+            $('#discount').val(discount.toFixed(2));
             $('#total').val(total.toFixed(2));
         }
 
@@ -399,7 +386,6 @@
                 strCart += "<\/tr>";
             });
             $("#cart-ligt").html(strCart);
-            console.log(100);
             calculateBill();
             
         }
@@ -430,7 +416,7 @@
             var pitem = cart.find(i => i.spid === id);
             var badge = document.getElementById("badge_" + id);
             var count = parseInt(badge.innerText);
-            if(pitem.quantity>0){
+            if(pitem.quantity>1){
                 pitem.quantity--;
                 saveCart();
                 count++;
@@ -487,43 +473,26 @@
     $(document).on('click','#btnreset',function(){
         ProductsCart.clearCart();
         setTimeout(function() {
-            location.reload();
+            getProducts();
         }, 400); 
     })
 
     $(document).on('click', "#btnbillgenarate", function() {
         var products = [];
         var hasZeroPriceProduct = false; // Flag variable
-    
-        $(".product-row").each(function() {
-            var productId = $(this).attr("spid");
-            var productName = $(this).find("td:nth-child(1)").text().trim();
-            var productSize = $(this).find("td:nth-child(2) .badge-primary").text().trim();
-            var productColor = $(this).find("td:nth-child(2) .badge-success").text().trim();
-            var productQuantity = $(this).find("td:nth-child(3) .quantity-input").text().trim();
-            var productPrice = $(this).find("td:nth-child(4) input").val().trim();
-    
-            if (parseInt(productPrice) > 0) {
-                var product = {
-                    id: productId,
-                    name: productName,
-                    size: productSize,
-                    color: productColor,
-                    quantity: productQuantity,
-                    price: productPrice
-                };
-                products.push(product);
-            } else {
-                hasZeroPriceProduct = true; // Set the flag to true
-                return false; // Exit the loop
-            }
-        });
-    
-        if (hasZeroPriceProduct) {
-            alert("Enter Product Price First");
-            return; // Don't proceed with the AJAX call
-        }
-    
+        cart=ProductsCart.getCart();
+        var strCart="";
+        cart.forEach(function(item) {
+            var product = {
+                id: item.spid,
+                name: item.product,
+                size: item.size,
+                color: item.color,
+                quantity: item.quantity,
+                price: item.price
+            };
+            products.push(product);
+        })
         var subtotal = $("#subtotal").val().trim();
         var discount = $("#discount").val().trim();
         var total = $("#total").val().trim();

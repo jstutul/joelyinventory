@@ -42,8 +42,12 @@
                             </tr>   
                           {% endfor %} 
                             <tr class="">
+                              <td class="text-right" colspan="4"><h4>Subtotal</h4></td>
+                              <td class="text-right"><b class="text-danger">${{order.subtotal}}</b></td>
+                            </tr>
+                            <tr>  
                               <td class="text-right" colspan="4"><h4>Discount</h4></td>
-                              <td class="text-center"><b class="text-danger">${{order.discount}}</b></td>
+                              <td class="text-right"><b class="text-danger">${{order.discount}}</b></td>
                             </tr>
                             <tr>
                               <td class="text-right" colspan="4"><h2>Total</h2></td>
@@ -93,4 +97,123 @@
       </div>                                    
   </div>
 </div>  
+
+<button class="btn btn-primary mr-2" onclick="printBarcode()">Print Now</button>
+<script>
+  function printBarcode() {
+    var printStyles = `
+      body {
+        font-family: Arial, sans-serif;
+        padding: 0;
+        margin: 0;
+      }
+      
+      .invoice-container {
+        width: 300px;
+        padding: 4px;
+        border: 1px solid #000;
+      }
+      
+      .invoice-header {
+        text-align: center;
+      }
+      
+      .invoice-details {
+        margin-top: 5px;
+      }
+      
+      .invoice-table {
+        width: 100%;
+        border-collapse: collapse;
+      }
+      
+      .invoice-table th,
+      .invoice-table td {
+        border-bottom: 1px solid #ddd;
+        text-size:12px;
+      }
+      
+      .invoice-table th {
+        text-align: left;
+        text-size:12px;
+      }
+      
+      .invoice-total {
+        text-align: right;
+      }
+      
+      .invoice-footer {
+        text-align: center;
+      }
+      
+    `;
+  
+    var strVar="";
+    strVar += "<body style=\"font-family:Arial,sans-serif;font-size:12px;padding;0;margin:0;\">";
+    strVar += "  <div class=\"invoice-container\" style=\"width:300px;border: 1px solid #000;\">";
+    strVar += "    <div class=\"invoice-header\" style=\"text-align: center;padding:0\">";
+    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
+    strVar += "      <h2>JOELY INVOICE<\/h2>";
+    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
+    strVar += "    <\/div>";
+    strVar += "    <div class=\"invoice-details\">";
+    strVar += "      <p>Company Name: [Company Name]<\/p>";
+    strVar += "      <p>Date: [Date]<\/p>";
+    strVar += "      <p>Invoice No: [Invoice Number]<\/p>";
+    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
+    strVar += "      <p>Customer Name: [Invoice Number]<\/p>";
+    strVar += "      <p>Phone: [Invoice Number]<\/p>";
+    strVar += "      <p>Address: [Invoice Number]<\/p>";
+    strVar += "    <\/div>";
+    strVar += "    <table class=\"invoice-table\" style=\"width:100%;border-collapse:collapse;\">";
+    strVar += "      <thead>";
+    strVar += "        <tr>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Product<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Quantity<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Price<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Total<\/td>";
+    strVar += "        <\/tr>";
+    strVar += "      <\/thead>";
+    strVar += "      <tbody>";
+    strVar += "        <tr>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Product 1]<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Quantity]<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Price]<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Total Price]<\/td>";
+    strVar += "        <\/tr>";
+    strVar += "        <tr>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Product 2]<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Quantity]<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Price]<\/td>";
+    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Total Price]<\/td>";
+    strVar += "        <\/tr>";
+    strVar += "      <\/tbody>";
+    strVar += "    <\/table>";
+    strVar += "    <div class=\"invoice-total\" style=\"text-align: right;\">";
+    strVar += "      <p>Sub Total: {{order.discount}}<\/p>";
+    strVar += "      <p>Discount: {{order.discount}}<\/p>";
+    strVar += "      <p>Total Price: {{order.total}}<\/p>";
+    strVar += "      <p>Payment Status: [Payment Status]<\/p>";
+    strVar += "    <\/div>";
+    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
+    strVar += "    <div class=\"invoice-footer\" style=\"text-align: center;\">";
+    strVar += "      <p>Thank you for your business!<\/p>";
+    strVar += "    <\/div>";
+    strVar += "  <\/div>";
+
+  
+    var printWindow = window.open('Invoice', '');
+    printWindow.document.write('<html><head><style>' + printStyles + '</style></head><body>');
+    printWindow.document.write(strVar);
+    printWindow.document.write('</body></html>');
+    printWindow.document.close();
+  
+    printWindow.onload = function() {
+      printWindow.print();
+      printWindow.close();
+    };
+  }
+  
+  
+</script>
 {% endblock %}

@@ -64,28 +64,19 @@ def dashboard(request):
     for sell in monthly_sell_amount:
         month = sell['month']
         total_sell_amount = sell['total_sell_amount']
-        sell_data[month - 1] = total_sell_amount
+        sell_data[month - 1] = round(total_sell_amount)
 
     # Populate cost data
     for cost in monthly_total_cost:
         month = cost['month']
         total_cost = cost['total_cost']
-        cost_data[month - 1] = total_cost
+        cost_data[month - 1] = round(total_cost)
 
     # Convert data to JSON format
     # Convert data to JSON format using the custom encoder
     sell_data_json = json.dumps(sell_data, cls=DecimalEncoder)
     cost_data_json = json.dumps(cost_data, cls=DecimalEncoder)
 
-
-    # # Set the data in the options variable
-    # options = {
-    #     'series': [
-    #         {'name': 'Total Cost', 'data': cost_data},
-    #         {'name': 'Total Sell', 'data': sell_data}
-    #     ]
-    # }
-    # print(sell_data_json)
     context={
         'total_peoduct':total_peoduct.count(),
         'return_product':return_product,
@@ -96,8 +87,8 @@ def dashboard(request):
         'total_costing':total_cost,
         'sell_data_json':sell_data_json,
         'cost_data_json':cost_data_json,
-        't_cost':sum(cost_data),
-        't_sell':sum(sell_data)
+        't_cost':round(sum(cost_data)),
+        't_sell':round(sum(sell_data))
     }
     return render(request,'inventory/index.html',context)
 
@@ -129,13 +120,13 @@ def SalesReport(request):
     for sell in monthly_sell_amount:
         month = sell['month']
         total_sell_amount = sell['total_sell_amount']
-        sell_data[month - 1] = total_sell_amount
+        sell_data[month - 1] = round(total_sell_amount)
 
     # Populate cost data
     for cost in monthly_total_cost:
         month = cost['month']
         total_cost = cost['total_cost']
-        cost_data[month - 1] = total_cost
+        cost_data[month - 1] = round(total_cost)
 
     # Convert data to JSON format using the custom encoder
     sell_data_json = json.dumps(sell_data, cls=DecimalEncoder)
@@ -147,8 +138,8 @@ def SalesReport(request):
         'total_costing': sum(cost_data),
         'sell_data_json': sell_data_json,
         'cost_data_json': cost_data_json,
-        't_cost': sum(cost_data),
-        't_sell': sum(sell_data)
+        't_cost': round(sum(cost_data)),
+        't_sell': round(sum(sell_data))
     }
     return render(request, 'inventory/report/index.html', context)
 
@@ -624,7 +615,7 @@ def Saleview(request):
     
     std=start_date
     etd=end_date
-    products = Sell.objects.filter(status=True)
+    products = Sell.objects.filter(status=True).order_by("-id")
 
     if payment_status:
         products = products.filter(paymentstatus=payment_status)
@@ -657,7 +648,7 @@ def SaleDetailsview(request, id):
     except Sell.DoesNotExist:
         order = None   
     context = {
-        "order": order,
+        "order": order, 
     }
     return render(request, 'inventory/sales/saledetails.html', context)
 
