@@ -83,11 +83,14 @@ def billview(request,id):
                 paymentstatus=paymentStatus
             )
             selldata.save()
+            if order.is_payment:
+                pass
+            else:    
+                for ord in order.product.all():
+                    ord.order=True
+                    ord.product.quantity=int(ord.product.quantity)-int(ord.quantity)
+                    ord.save()
             order.is_payment=True
-            for ord in order.product.all():
-                ord.order=True
-                ord.product.quantity=int(ord.product.quantity)-int(ord.quantity)
-                ord.save()
             order.save()
             messages.success(request,"Order Completed")
             return redirect('App_pos:poshome')

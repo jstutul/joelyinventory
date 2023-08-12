@@ -65,7 +65,7 @@
                         </div>
                       </div>
                       <div class="card-body">
-                        <form method="post">{% csrf_token %}
+                        <form method="post" id="bilprint">{% csrf_token %}
                           <div class="form-group">
                             <label for="cname">Customer Name</label>
                             <input type="text" class="form-control" name="cname" id="cname" value="" placeholder="Enter Name" required>
@@ -80,13 +80,13 @@
                           </div>
                           <div class="form-group">
                             <label for="cphone">Phone</label>
-                            <input type="number" class="form-control" name="cphone" id="cphone" value="" placeholder="Enter phone" required>
+                            <input type="text" class="form-control" name="cphone" id="cphone" value="" placeholder="Enter phone" required>
                           </div>
                           <label for="caddress">Address</label>
                           <div class="form-label-group">
-                            <textarea data-length="20" name="caddress" class="form-control" rows="3" placeholder="Enter address"></textarea>
+                            <textarea data-length="20" id="caddress" name="caddress" class="form-control" rows="3" placeholder="Enter address"></textarea>
                           </div>
-                          <button type="submit" class="btn btn-primary">Submit</button>
+                          <button type="submit" class="btn btn-primary" >Submit</button>
                         </form>  
                       </div>
                   </div> 
@@ -98,120 +98,137 @@
   </div>
 </div>  
 
-<button class="btn btn-primary mr-2" onclick="printBarcode()">Print Now</button>
-<script>
-  function printBarcode() {
-    var printStyles = `
-      body {
-        font-family: Arial, sans-serif;
-        padding: 0;
-        margin: 0;
-      }
-      
-      .invoice-container {
-        width: 300px;
-        padding: 4px;
-        border: 1px solid #000;
-      }
-      
-      .invoice-header {
-        text-align: center;
-      }
-      
-      .invoice-details {
-        margin-top: 5px;
-      }
-      
-      .invoice-table {
-        width: 100%;
-        border-collapse: collapse;
-      }
-      
-      .invoice-table th,
-      .invoice-table td {
-        border-bottom: 1px solid #ddd;
-        text-size:12px;
-      }
-      
-      .invoice-table th {
-        text-align: left;
-        text-size:12px;
-      }
-      
-      .invoice-total {
-        text-align: right;
-      }
-      
-      .invoice-footer {
-        text-align: center;
-      }
-      
-    `;
-  
-    var strVar="";
-    strVar += "<body style=\"font-family:Arial,sans-serif;font-size:12px;padding;0;margin:0;\">";
-    strVar += "  <div class=\"invoice-container\" style=\"width:300px;border: 1px solid #000;\">";
-    strVar += "    <div class=\"invoice-header\" style=\"text-align: center;padding:0\">";
-    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
-    strVar += "      <h2>JOELY INVOICE<\/h2>";
-    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
-    strVar += "    <\/div>";
-    strVar += "    <div class=\"invoice-details\">";
-    strVar += "      <p>Company Name: [Company Name]<\/p>";
-    strVar += "      <p>Date: [Date]<\/p>";
-    strVar += "      <p>Invoice No: [Invoice Number]<\/p>";
-    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
-    strVar += "      <p>Customer Name: [Invoice Number]<\/p>";
-    strVar += "      <p>Phone: [Invoice Number]<\/p>";
-    strVar += "      <p>Address: [Invoice Number]<\/p>";
-    strVar += "    <\/div>";
-    strVar += "    <table class=\"invoice-table\" style=\"width:100%;border-collapse:collapse;\">";
-    strVar += "      <thead>";
-    strVar += "        <tr>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Product<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Quantity<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Price<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;text-align: center\">Total<\/td>";
-    strVar += "        <\/tr>";
-    strVar += "      <\/thead>";
-    strVar += "      <tbody>";
-    strVar += "        <tr>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Product 1]<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Quantity]<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Price]<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Total Price]<\/td>";
-    strVar += "        <\/tr>";
-    strVar += "        <tr>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Product 2]<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Quantity]<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Price]<\/td>";
-    strVar += "          <td style=\"border-bottom: 1px solid #ddd;\">[Total Price]<\/td>";
-    strVar += "        <\/tr>";
-    strVar += "      <\/tbody>";
-    strVar += "    <\/table>";
-    strVar += "    <div class=\"invoice-total\" style=\"text-align: right;\">";
-    strVar += "      <p>Sub Total: {{order.discount}}<\/p>";
-    strVar += "      <p>Discount: {{order.discount}}<\/p>";
-    strVar += "      <p>Total Price: {{order.total}}<\/p>";
-    strVar += "      <p>Payment Status: [Payment Status]<\/p>";
-    strVar += "    <\/div>";
-    strVar += "      <p style=\"border-bottom: 1px solid #ddd;\"><\/p>";
-    strVar += "    <div class=\"invoice-footer\" style=\"text-align: center;\">";
-    strVar += "      <p>Thank you for your business!<\/p>";
-    strVar += "    <\/div>";
-    strVar += "  <\/div>";
+<button class="btn btn-primary mr-2" onclick=printBarcode()>Print Now</button>
+<script src="https://code.jquery.com/jquery-3.6.0.min.js"></script>
 
+<script>
+  var companyName="Joely Shop";
+  var currentDateTime="{% now "l, F j, Y, P" %}";
+  var orderID="{{order.id}}";
   
-    var printWindow = window.open('Invoice', '');
-    printWindow.document.write('<html><head><style>' + printStyles + '</style></head><body>');
+  $('#bilprint').on('submit', function(event) {
+    event.preventDefault();
+    var form=this;
+    $.alert.open("confirm", "Do you want to print receipt?", function (button) {
+      
+      if (button == 'yes') {
+        printBarcode();
+        form.submit();
+      }
+      else{
+        form.submit();
+      }
+    });
+    //alert('Form submitted!');
+  });
+  function printBarcode() {
+    var customerName=$("#cname").val();
+    var customerPhone=$("#cphone").val();
+    var customerAddress=$("#caddress").val();
+    var paymentStatus=$("#pstatus option:selected").val();
+    var strVar = "";
+    let pname="";
+    strVar += "<html>";
+    strVar += "<head>";
+    strVar += '<meta charset="utf-8">';
+    strVar += "<title>joely Shop Bill</title>";
+    strVar += "</head>";
+    strVar += "<body>";
+    strVar += '    <table width="288px" cellpadding="0" cellspacing="0" border="0" style="font-family: Helvetica, Arial, Geneva, sans-serif; border-collapse: collapse; border-spacing:0px;font-size: 8px;">';
+    strVar += '        <tr>';
+    strVar += '            <td align="center">';
+    strVar += '                <table width="288px" align="left" cellpadding="0" cellspacing="0" border="0" bgcolor="#ffffff" style="border: 1px solid #000000; background-color: #ffffff; word-break: break-word; table-layout: fixed;">';
+    strVar += '                    <tbody>';
+    strVar += '                      <tr>';
+    strVar += '                        <td align="center" colspan="4" style="color: #000000;  border-bottom: 1px solid #000000;">Joly Invoice</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="color: #000000;  padding-left: 5px;"><strong>Company Name:</strong></td>';
+    strVar += '                        <td colspan="2">'+companyName+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="color: #000000;  padding-left: 5px;"><strong>Date:</strong></td>';
+    strVar += '                        <td colspan="3">'+currentDateTime+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="color: #000000;  padding-left: 5px; border-bottom: 1px solid #000000;"><strong>Invoice No:</strong></td>';
+    strVar += '                        <td colspan="3" style="border-bottom: 1px solid #000000;">'+orderID+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="color: #000000;  padding-left: 5px;"><strong>Customer Name:</strong></td>';
+    strVar += '                        <td colspan="3">'+customerName+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="color: #000000;  padding-left: 5px;"><strong>Phone:</strong></td>';
+    strVar += '                        <td colspan="3">'+customerPhone+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="color: #000000;  padding-left: 5px; border-bottom: 1px solid #000000;"><strong>Address:</strong></td>';
+    strVar += '                        <td colspan="3" style="border-bottom: 1px solid #000000;">'+customerAddress+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="padding-left: 5px;"><strong>Product</strong></td>';
+    strVar += '                        <td><strong>Quantity</strong></td>';
+    strVar += '                        <td><strong>Price</strong></td>';
+    strVar += '                        <td><strong>Total</strong></td>';
+    strVar += '                      </tr>';
+    {% for ord in order.product.all%}  
+    pname="{{ord.product.name}}";
+    strVar += '                      <tr>';
+    strVar += '                        <td style="padding-left: 5px;">'+pname+'</td>';
+    strVar += '                        <td>'+{{ord.quantity}}+'</td>';
+    strVar += '                        <td>'+{{ord.price}}+'</td>';
+    strVar += '                        <td>'+{{ord.get_total}}+'</td>';
+    strVar += '                      </tr>';
+    {% endfor%}
+    strVar += '                      <tr>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">Sub Total:</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">'+{{order.subtotal}}+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">Discount:</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">'+{{order.discount}}+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">Total Price:</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">'+{{order.total}}+'</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">Payment Status:</td>';
+    strVar += '                        <td style="border-top: 1px dashed #000000;">('+paymentStatus+')</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td colspan="4" style="border-top: 1px dashed #000000;">&nbsp;</td>';
+    strVar += '                      </tr>';
+    strVar += '                      <tr>';
+    strVar += '                        <td align="center" colspan="4" style="color: #000000;  border-top: 1px dashed #000000;">Thank you for your business</td>';
+    strVar += '                      </tr>';
+    strVar += '                    </tbody>';
+    strVar += '                  </table>';
+    strVar += '            </td>';
+    strVar += '        </tr>';
+    strVar += '        <tr>';
+    strVar += '            <td height="40">&nbsp;</td>';
+    strVar += '        </tr>';
+    strVar += '    </table>';
+    strVar += '</body>';
+    strVar += '</html>';
+    
+    const printWindow = window.open('', '');
+    printWindow.document.open();
     printWindow.document.write(strVar);
-    printWindow.document.write('</body></html>');
     printWindow.document.close();
-  
-    printWindow.onload = function() {
-      printWindow.print();
-      printWindow.close();
-    };
+
+    // Optionally, you can trigger the print dialog of the new window immediately
+    printWindow.print();
   }
   
   
